@@ -1,0 +1,9 @@
+{
+  "name": "textenginepro",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "franc-min": "^6.2.0"
+  }
+}
