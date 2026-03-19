@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Text Engine Pro | Keyboard Fixer &amp; Content Analyzer</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#000;--accent:#FF3E00;--bg:#f4f4f4;--card:#fff;--coffee:#FFDD00;--green:#00FF00;--orange:#FFA500;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);margin:0;padding:10px;color:var(--primary);}
+.container{width:100%;max-width:900px;margin:10px auto;background:var(--card);padding:20px;border:4px solid var(--primary);box-shadow:10px 10px 0 var(--primary);}
+.header-box{text-align:center;margin-bottom:20px;}
+h1{font-weight:900;font-size:1.8rem;margin:0;text-transform:uppercase;letter-spacing:-1px;}
+.toolbar-top{display:flex;justify-content:space-between;align-items:center;background:var(--primary);color:#fff;padding:8px 15px;font-size:12px;font-family:'JetBrains Mono',monospace;}
+.status-container{display:flex;align-items:center;gap:8px;}
+.dot{width:8px;height:8px;background:var(--green);border-radius:50%;display:inline-block;box-shadow:0 0 8px var(--green);animation:pulse 1.5s infinite;}
+.dot.offline{background:var(--orange);box-shadow:0 0 8px var(--orange);}
+@keyframes pulse{0%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.2);}100%{opacity:1;transform:scale(1);}}
+textarea{width:100%;min-height:250px;padding:20px;font-size:18px;border:4px solid var(--primary);font-family:'JetBrains Mono','Cairo',monospace;line-height:1.6;outline:none;resize:vertical;display:block;background:#fff;}
+.buttons-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:15px;}
+button{padding:14px;border:3px solid var(--primary);background:#fff;font-weight:900;font-size:13px;cursor:pointer;transition:.1s;box-shadow:4px 4px 0 var(--primary);}
+button:active{transform:translate(2px,2px);box-shadow:none;background:var(--accent);color:#fff;}
+.lang-strip{display:flex;align-items:center;gap:10px;margin-top:12px;background:#f0f0f0;border:3px solid var(--primary);padding:10px 14px;flex-wrap:wrap;}
+.lang-strip label{font-weight:900;font-size:13px;white-space:nowrap;}
+.lang-badge{flex:1;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;padding:5px 12px;background:var(--primary);color:#fff;min-width:160px;}
+.lang-btn{padding:8px 16px;border:3px solid var(--primary);background:#fff;font-weight:900;font-size:13px;cursor:pointer;box-shadow:3px 3px 0 var(--primary);transition:.1s;white-space:nowrap;}
+.lang-btn:active{transform:translate(2px,2px);box-shadow:none;background:var(--accent);color:#fff;}
+.content-hub{margin-top:40px;border-top:4px solid var(--primary);padding-top:30px;}
+.article{margin-bottom:40px;line-height:1.8;}
+.article h2{font-size:1.5rem;background:var(--primary);color:#fff;display:inline-block;padding:5px 15px;margin-bottom:20px;}
+.article h3{font-size:1.2rem;border-left:5px solid var(--accent);padding-left:10px;margin:25px 0 10px;}
+.article p,.article li{font-size:15px;color:#333;}
+.faq-item{background:#eee;padding:15px;border:2px solid var(--primary);margin-bottom:10px;}
+.faq-q{font-weight:900;display:block;margin-bottom:5px;color:var(--accent);}
+.support-btn{display:inline-flex;align-items:center;justify-content:center;background:var(--coffee);color:#000;padding:12px 25px;border:3px solid var(--primary);text-decoration:none;font-weight:900;font-size:15px;box-shadow:4px 4px 0 var(--primary);}
+.footer-links{margin-top:18px;font-size:14px;}
+.footer-links a{text-decoration:underline;cursor:pointer;color:inherit;margin:0 6px;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;padding:12px 25px;border:3px solid var(--accent);font-weight:bold;z-index:1000;pointer-events:none;border-radius:0;}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:900;justify-content:center;align-items:center;padding:16px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:#fff;border:4px solid var(--primary);box-shadow:10px 10px 0 var(--primary);max-width:600px;width:100%;padding:30px 28px;}
+.modal-box h2{font-size:1.3rem;background:var(--primary);color:#fff;display:inline-block;padding:4px 14px;margin:0 0 20px;}
+.modal-box p{font-size:15px;color:#333;line-height:1.8;margin:0 0 24px;}
+.modal-close{float:right;background:var(--primary);color:#fff;border:none;font-size:16px;font-weight:900;padding:5px 13px;cursor:pointer;}
+.modal-close:hover,.modal-close:focus{background:var(--accent);}
+.modal-accept{background:var(--primary);color:#fff;border:3px solid var(--primary);padding:12px 28px;font-weight:900;font-size:14px;cursor:pointer;display:block;width:100%;}
+.modal-accept:hover{background:var(--accent);border-color:var(--accent);}
+</style>
+</head>
+<body>
+
+<!-- PRIVACY MODAL -->
+<div class="modal-overlay" id="privacyModal" role="dialog" aria-modal="true" aria-label="Privacy Policy">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">&#x2715; CLOSE</button>
+    <h2>&#x1F512; Privacy Policy</h2>
+    <p>
+      Text Engine Pro does not collect, store, or share your personal data.
+      All text processing happens locally in your browser.
+      We use Google AdSense to show ads, which may use cookies to serve
+      relevant advertisements. By using this site, you agree to this behavior.
+    </p>
+    <button class="modal-accept" onclick="closeModal()">GOT IT &#x2714;</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="container">
+  <div class="header-box"><h1>TEXT ENGINE PRO</h1></div>
+
+  <div class="toolbar-top">
+    <div id="stats">WORDS: 0 | CHARS: 0</div>
+    <div class="status-container">
+      <span id="status-text">ENGINE LIVE</span>
+      <div id="status-dot" class="dot"></div>
+    </div>
+  </div>
+
+  <textarea id="text" dir="auto" placeholder="Start typing... Your engine is warmed up."></textarea>
+
+  <div class="buttons-grid">
+    <button onclick="capitalize()" style="border-color:var(--accent)">Capitalize</button>
+    <button onclick="upper()">UPPERCASE</button>
+    <button onclick="lower()">lowercase</button>
+    <button onclick="removeSpaces()">Clean Space</button>
+    <button onclick="copyText()">Copy &#x2705;</button>
+    <button onclick="clearText()" style="color:red">Clear</button>
+    <button onclick="convertLayout('enToAr')">EN &#x27A1; AR</button>
+    <button onclick="convertLayout('arToEn')">AR &#x27A1; EN</button>
+    <button style="background:var(--primary);color:#fff" onclick="smartAutoFix()">Smart Fix &#x1F9E0;</button>
+  </div>
+
+  <div class="lang-strip">
+    <label>&#x1F310; DETECTED LANGUAGE:</label>
+    <span class="lang-badge" id="lang-badge">&#x2014; TYPE TO DETECT &#x2014;</span>
+    <button class="lang-btn" id="lang-btn" onclick="detectLanguage()">Detect Language &#x1F50D;</button>
+  </div>
+
+  <div class="content-hub">
+    <article class="article">
+      <h2>&#x1F4D8; How to Use Every Tool</h2>
+
+      <h3>&#x1F50D; Detect Language</h3>
+      <p><strong>What it does:</strong> Identifies the actual language of your text using the <em>franc</em> trigram engine covering 175+ languages. Type or paste text, then click Detect Language. Works best with 20+ characters.</p>
+
+      <h3>&#x1F9E0; Smart Fix</h3>
+      <p><strong>What it does:</strong> Fixes text typed with the wrong keyboard layout. If you typed Arabic words while in English mode (or vice versa), Smart Fix detects the dominant language and converts automatically.</p>
+      <p><strong>Example:</strong> <code>lvpf</code> (wrong layout) &#x27A1; <code>بلاي</code></p>
+
+      <h3>EN &#x27A1; AR &nbsp;/&nbsp; AR &#x27A1; EN</h3>
+      <p>Manually converts between Arabic and English keyboard layouts key-by-key. Use when you know which direction you mis-typed.</p>
+
+      <h3>&#x1F524; Capitalize</h3>
+      <p>Converts to Title Case. <code>the quick brown fox</code> &#x27A1; <code>The Quick Brown Fox</code></p>
+
+      <h3>&#x1F4E2; UPPERCASE &nbsp;/&nbsp; &#x1F4DD; lowercase</h3>
+      <p>Instantly switch the case of all letters in your text.</p>
+
+      <h3>&#x1F9F9; Clean Space</h3>
+      <p>Removes double spaces, extra tabs, and leading/trailing whitespace.</p>
+
+      <h3>&#x2705; Copy &nbsp;/&nbsp; &#x1F5D1; Clear</h3>
+      <p><strong>Copy</strong> sends the full text to your clipboard. <strong>Clear</strong> wipes the editor and the auto-saved draft.</p>
+    </article>
+
+    <article class="article">
+      <h2>&#x1F680; Tech Behind the Tool</h2>
+      <p>Text Engine Pro is 100% client-side. Your text never leaves your browser. We use <code>localStorage</code> to auto-save your draft — no server, no accounts, no tracking.</p>
+      <h3>EN &#x21C4; AR Keyboard Mapping</h3>
+      <p>A precise key-position hash map of the standard Arabic QWERTY layout. The two-character ligature <strong>&#x644;&#x627;</strong> (B key) is handled via priority lookahead, running in O(n) time.</p>
+    </article>
+
+    <article class="article">
+      <h2>&#x2753; Frequently Asked Questions</h2>
+      <div class="faq-item">
+        <span class="faq-q">Is my text data private?</span>
+        <p>Yes. Fully serverless — your text is processed only in your browser and never transmitted anywhere.</p>
+      </div>
+      <div class="faq-item">
+        <span class="faq-q">Why is Smart Fix converting the wrong way?</span>
+        <p>Smart Fix counts Arabic vs Latin characters. If your text is mixed, add more characters of the correct language or use the manual EN&#x27A1;AR / AR&#x27A1;EN buttons instead.</p>
+      </div>
+      <div class="faq-item">
+        <span class="faq-q">Can I use this for PDF text?</span>
+        <p>Yes. Paste PDF text here, fix the layout or encoding, then paste back into your document.</p>
+      </div>
+      <div class="faq-item">
+        <span class="faq-q">Does this site use cookies?</span>
+        <p>The tool itself uses <code>localStorage</code> only. Google AdSense ads may use cookies.
+           See our <a onclick="openModal()" style="cursor:pointer;text-decoration:underline;">Privacy Policy</a>.</p>
+      </div>
+    </article>
+
+    <div style="text-align:center;padding-bottom:50px;">
+      <a href="https://www.paypal.com" target="_blank" class="support-btn">
+        <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Support" style="width:20px;margin-right:8px;">
+        SUPPORT THE ENGINE!
+      </a>
+      <div class="footer-links">
+        <a onclick="openModal()">Privacy Policy</a> |
+        <a href="mailto:support@textengine.pro">Contact</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   TEXT ENGINE PRO — main script
+   All functions defined before any event listeners.
+   No function calls at top level except the init block.
+   ============================================================ */
+
+// Element refs
+var textArea  = document.getElementById('text');
+var statsEl   = document.getElementById('stats');
+var statusDot = document.getElementById('status-dot');
+var statusTxt = document.getElementById('status-text');
+var langBadge = document.getElementById('lang-badge');
+var langBtn   = document.getElementById('lang-btn');
+var modal     = document.getElementById('privacyModal');
+
+// franc cached module
+var francMod = null;
+
+/* ── EN <-> AR layout maps ───────────────────────────────── */
+var EN_AR = {'q':'ض','w':'ص','e':'ث','r':'ق','t':'ف','y':'غ','u':'ع',
+  'i':'ه','o':'خ','p':'ح','[':'ج',']':'د','\\':'ذ','a':'ش','s':'س',
+  'd':'ي','f':'ب','g':'ل','h':'ا','j':'ت','k':'ن','l':'م',';':'ك',
+  "'":'ط','z':'ئ','x':'ء','c':'ؤ','v':'ر','b':'لا','n':'ى',
+  'm':'ة',',':'و','.':'ز','/':'ظ',' ':' '};
+var AR_EN = {};
+(function(){ for(var k in EN_AR) AR_EN[EN_AR[k]] = k; })();
+
+/* ── Online / offline ────────────────────────────────────── */
+function refreshStatus(){
+  var on = navigator.onLine;
+  statusDot.classList.toggle('offline', !on);
+  statusTxt.innerText = on ? 'ENGINE LIVE' : 'OFFLINE';
+}
+window.addEventListener('online',  refreshStatus);
+window.addEventListener('offline', refreshStatus);
+
+/* ── Stats + autosave (called on every keystroke) ─────────── */
+function updateStats(){
+  var t = textArea.value;
+  var w = t.trim() === '' ? 0 : t.trim().split(/\s+/).length;
+  statsEl.innerText = 'WORDS: ' + w + ' | CHARS: ' + t.length;
+  try { localStorage.setItem('te_pro_data', t); } catch(e){}
+}
+
+/* ── Text tools ──────────────────────────────────────────── */
+function upper(){
+  textArea.value = textArea.value.toUpperCase(); updateStats();
+}
+function lower(){
+  textArea.value = textArea.value.toLowerCase(); updateStats();
+}
+function capitalize(){
+  textArea.value = textArea.value.toLowerCase()
+    .replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+  updateStats();
+}
+function removeSpaces(){
+  textArea.value = textArea.value.replace(/\s+/g,' ').trim(); updateStats();
+}
+function clearText(){
+  if(!confirm('Clear all text?')) return;
+  textArea.value = '';
+  langBadge.textContent = '\u2014 TYPE TO DETECT \u2014';
+  statsEl.innerText = 'WORDS: 0 | CHARS: 0';
+  try { localStorage.removeItem('te_pro_data'); } catch(e){}
+}
+function copyText(){
+  if(!textArea.value) return;
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(textArea.value)
+      .then(function(){ showToast('Copied to Clipboard! \u2705'); })
+      .catch(function(){ fallbackCopy(); });
+  } else {
+    fallbackCopy();
+  }
+}
+function fallbackCopy(){
+  textArea.select();
+  try { document.execCommand('copy'); showToast('Copied!'); }
+  catch(e){ showToast('Copy failed — please use Ctrl+C'); }
+}
+
+/* ── Layout conversion ───────────────────────────────────── */
+function convertLayout(mode){
+  var inp = textArea.value, res = '';
+  if(mode === 'enToAr'){
+    for(var i=0;i<inp.length;i++){
+      var ch = inp[i].toLowerCase();
+      res += (ch in EN_AR) ? EN_AR[ch] : inp[i];
+    }
+  } else {
+    var j = 0;
+    while(j < inp.length){
+      var two = inp[j] + (inp[j+1]||'');
+      if(two in AR_EN){ res += AR_EN[two]; j+=2; }
+      else if(inp[j] in AR_EN){ res += AR_EN[inp[j]]; j++; }
+      else { res += inp[j]; j++; }
+    }
+  }
+  textArea.value = res; updateStats();
+}
+
+/* ── Smart Fix ───────────────────────────────────────────── */
+function smartAutoFix(){
+  var t = textArea.value;
+  if(!t){ showToast('Type something first!'); return; }
+  var en = (t.match(/[a-z]/gi)||[]).length;
+  var ar = (t.match(/[\u0600-\u06FF]/g)||[]).length;
+  convertLayout(en > ar ? 'enToAr' : 'arToEn');
+  showToast('Engine Optimized \u26A1');
+}
+
+/* ── Toast ───────────────────────────────────────────────── */
+function showToast(msg){
+  var el = document.createElement('div');
+  el.className = 'toast'; el.innerText = msg;
+  document.body.appendChild(el);
+  setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 2500);
+}
+
+/* ── Modal ───────────────────────────────────────────────── */
+function openModal(){
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(){
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Close when clicking backdrop
+modal.addEventListener('click', function(e){
+  if(e.target === modal) closeModal();
+});
+// Close on Escape key
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeModal();
+});
+
+/* ── Language detection ──────────────────────────────────── */
+var ISO_MAP = {
+  ara:{ name:'Arabic',               native:'\u0627\u0644\u0639\u0631\u0628\u064A\u0629',                      flag:'\U0001F1F8\U0001F1E6', family:'Semitic',       script:'Arabic'     },
+  arz:{ name:'Egyptian Arabic',      native:'\u0639\u0631\u0628\u064A \u0645\u0635\u0631\u064A',              flag:'\U0001F1EA\U0001F1EC', family:'Semitic',       script:'Arabic'     },
+  acm:{ name:'Iraqi Arabic',         native:'\u0639\u0631\u0628\u064A \u0639\u0631\u0627\u0642\u064A',       flag:'\U0001F1EE\U0001F1F6', family:'Semitic',       script:'Arabic'     },
+  apc:{ name:'Levantine Arabic',     native:'\u0639\u0631\u0628\u064A \u0634\u0627\u0645\u064A',              flag:'\U0001F1F8\U0001F1FE', family:'Semitic',       script:'Arabic'     },
+  heb:{ name:'Hebrew',               native:'\u05E2\u05D1\u05E8\u05D9\u05EA',                                   flag:'\U0001F1EE\U0001F1F1', family:'Semitic',       script:'Hebrew'     },
+  amh:{ name:'Amharic',              native:'\u12A0\u121B\u122D\u129B',                                           flag:'\U0001F1EA\U0001F1F9', family:'Semitic',       script:'Ethiopic'   },
+  mlt:{ name:'Maltese',              native:'Malti',                                                                  flag:'\U0001F1F2\U0001F1F9', family:'Semitic',       script:'Latin'      },
+  som:{ name:'Somali',               native:'Soomaali',                                                               flag:'\U0001F1F8\U0001F1F4', family:'Cushitic',      script:'Latin'      },
+  eng:{ name:'English',              native:'English',                                                                flag:'\U0001F1EC\U0001F1E7', family:'Germanic',      script:'Latin'      },
+  fra:{ name:'French',               native:'Fran\u00E7ais',                                                         flag:'\U0001F1EB\U0001F1F7', family:'Romance',       script:'Latin'      },
+  spa:{ name:'Spanish',              native:'Espa\u00F1ol',                                                          flag:'\U0001F1EA\U0001F1F8', family:'Romance',       script:'Latin'      },
+  por:{ name:'Portuguese',           native:'Portugu\u00EAs',                                                        flag:'\U0001F1F5\U0001F1F9', family:'Romance',       script:'Latin'      },
+  ita:{ name:'Italian',              native:'Italiano',                                                               flag:'\U0001F1EE\U0001F1F9', family:'Romance',       script:'Latin'      },
+  ron:{ name:'Romanian',             native:'Rom\u00E2n\u0103',                                                     flag:'\U0001F1F7\U0001F1F4', family:'Romance',       script:'Latin'      },
+  cat:{ name:'Catalan',              native:'Catal\u00E0',                                                           flag:'\U0001F1EA\U0001F1F8', family:'Romance',       script:'Latin'      },
+  hat:{ name:'Haitian Creole',       native:'Krey\u00F2l',                                                           flag:'\U0001F1ED\U0001F1F9', family:'Romance',       script:'Latin'      },
+  deu:{ name:'German',               native:'Deutsch',                                                                flag:'\U0001F1E9\U0001F1EA', family:'Germanic',      script:'Latin'      },
+  nld:{ name:'Dutch',                native:'Nederlands',                                                             flag:'\U0001F1F3\U0001F1F1', family:'Germanic',      script:'Latin'      },
+  swe:{ name:'Swedish',              native:'Svenska',                                                                flag:'\U0001F1F8\U0001F1EA', family:'Germanic',      script:'Latin'      },
+  dan:{ name:'Danish',               native:'Dansk',                                                                  flag:'\U0001F1E9\U0001F1F0', family:'Germanic',      script:'Latin'      },
+  nor:{ name:'Norwegian',            native:'Norsk',                                                                  flag:'\U0001F1F3\U0001F1F4', family:'Germanic',      script:'Latin'      },
+  nob:{ name:'Norwegian Bokmal',     native:'Norsk Bokm\u00E5l',                                                     flag:'\U0001F1F3\U0001F1F4', family:'Germanic',      script:'Latin'      },
+  isl:{ name:'Icelandic',            native:'\u00CDslenska',                                                         flag:'\U0001F1EE\U0001F1F8', family:'Germanic',      script:'Latin'      },
+  afr:{ name:'Afrikaans',            native:'Afrikaans',                                                              flag:'\U0001F1FF\U0001F1E6', family:'Germanic',      script:'Latin'      },
+  ltz:{ name:'Luxembourgish',        native:'L\u00EBtzebuergesch',                                                   flag:'\U0001F1F1\U0001F1FA', family:'Germanic',      script:'Latin'      },
+  rus:{ name:'Russian',              native:'\u0420\u0443\u0441\u0441\u043A\u0438\u0439',                      flag:'\U0001F1F7\U0001F1FA', family:'Slavic',        script:'Cyrillic'   },
+  ukr:{ name:'Ukrainian',            native:'\u0423\u043A\u0440\u0430\u0457\u043D\u0441\u044C\u043A\u0430', flag:'\U0001F1FA\U0001F1E6', family:'Slavic',        script:'Cyrillic'   },
+  bel:{ name:'Belarusian',           native:'\u0411\u0435\u043B\u0430\u0440\u0443\u0441\u043A\u0430\u044F', flag:'\U0001F1E7\U0001F1FE', family:'Slavic',        script:'Cyrillic'   },
+  pol:{ name:'Polish',               native:'Polski',                                                                 flag:'\U0001F1F5\U0001F1F1', family:'Slavic',        script:'Latin'      },
+  ces:{ name:'Czech',                native:'\u010Ce\u0161tina',                                                    flag:'\U0001F1E8\U0001F1FF', family:'Slavic',        script:'Latin'      },
+  slk:{ name:'Slovak',               native:'Sloven\u010Dina',                                                       flag:'\U0001F1F8\U0001F1F0', family:'Slavic',        script:'Latin'      },
+  slv:{ name:'Slovenian',            native:'Sloven\u0161\u010Dina',                                                flag:'\U0001F1F8\U0001F1EE', family:'Slavic',        script:'Latin'      },
+  hrv:{ name:'Croatian',             native:'Hrvatski',                                                               flag:'\U0001F1ED\U0001F1F7', family:'Slavic',        script:'Latin'      },
+  srp:{ name:'Serbian',              native:'\u0421\u0440\u043F\u0441\u043A\u0438',                             flag:'\U0001F1F7\U0001F1F8', family:'Slavic',        script:'Cyrillic'   },
+  bul:{ name:'Bulgarian',            native:'\u0411\u044A\u043B\u0433\u0430\u0440\u0441\u043A\u0438',        flag:'\U0001F1E7\U0001F1EC', family:'Slavic',        script:'Cyrillic'   },
+  mkd:{ name:'Macedonian',           native:'\u041C\u0430\u043A\u0435\u0434\u043E\u043D\u0441\u043A\u0438', flag:'\U0001F1F2\U0001F1F0', family:'Slavic',        script:'Cyrillic'   },
+  hin:{ name:'Hindi',                native:'\u0939\u093F\u0928\u094D\u0926\u0940',                             flag:'\U0001F1EE\U0001F1F3', family:'Indo-Iranian',  script:'Devanagari' },
+  urd:{ name:'Urdu',                 native:'\u0627\u0631\u062F\u0648',                                           flag:'\U0001F1F5\U0001F1F0', family:'Indo-Iranian',  script:'Arabic'     },
+  ben:{ name:'Bengali',              native:'\u09AC\u09BE\u0982\u09B2\u09BE',                                    flag:'\U0001F1E7\U0001F1E9', family:'Indo-Iranian',  script:'Bengali'    },
+  guj:{ name:'Gujarati',             native:'\u0A97\u0AC1\u0A9C\u0AB0\u0ABE\u0AA4\u0AC0',                     flag:'\U0001F1EE\U0001F1F3', family:'Indo-Iranian',  script:'Gujarati'   },
+  mar:{ name:'Marathi',              native:'\u092E\u0930\u093E\u0920\u0940',                                    flag:'\U0001F1EE\U0001F1F3', family:'Indo-Iranian',  script:'Devanagari' },
+  nep:{ name:'Nepali',               native:'\u0928\u0947\u092A\u093E\u0932\u0940',                             flag:'\U0001F1F3\U0001F1F5', family:'Indo-Iranian',  script:'Devanagari' },
+  fas:{ name:'Persian (Farsi)',      native:'\u0641\u0627\u0631\u0633\u06CC',                                    flag:'\U0001F1EE\U0001F1F7', family:'Indo-Iranian',  script:'Arabic'     },
+  pus:{ name:'Pashto',               native:'\u067E\u069A\u062A\u0648',                                           flag:'\U0001F1E6\U0001F1EB', family:'Indo-Iranian',  script:'Arabic'     },
+  kur:{ name:'Kurdish',              native:'Kurd\u00EE',                                                            flag:'\U0001F1EE\U0001F1F6', family:'Indo-Iranian',  script:'Latin'      },
+  lit:{ name:'Lithuanian',           native:'Lietuvi\u0173',                                                         flag:'\U0001F1F1\U0001F1F9', family:'Baltic',        script:'Latin'      },
+  lav:{ name:'Latvian',              native:'Latvie\u0161u',                                                         flag:'\U0001F1F1\U0001F1FB', family:'Baltic',        script:'Latin'      },
+  ell:{ name:'Greek',                native:'\u0395\u03BB\u03BB\u03B7\u03BD\u03B9\u03BA\u03AC',               flag:'\U0001F1EC\U0001F1F7', family:'Hellenic',      script:'Greek'      },
+  gle:{ name:'Irish',                native:'Gaeilge',                                                                flag:'\U0001F1EE\U0001F1EA', family:'Celtic',        script:'Latin'      },
+  fin:{ name:'Finnish',              native:'Suomi',                                                                  flag:'\U0001F1EB\U0001F1EE', family:'Uralic',        script:'Latin'      },
+  hun:{ name:'Hungarian',            native:'Magyar',                                                                 flag:'\U0001F1ED\U0001F1FA', family:'Uralic',        script:'Latin'      },
+  est:{ name:'Estonian',             native:'Eesti',                                                                  flag:'\U0001F1EA\U0001F1EA', family:'Uralic',        script:'Latin'      },
+  tur:{ name:'Turkish',              native:'T\u00FCrk\u00E7e',                                                     flag:'\U0001F1F9\U0001F1F7', family:'Turkic',        script:'Latin'      },
+  uzb:{ name:'Uzbek',                native:"O'zbek",                                                                 flag:'\U0001F1FA\U0001F1FF', family:'Turkic',        script:'Latin'      },
+  kaz:{ name:'Kazakh',               native:'\u049A\u0430\u0437\u0430\u049B\u0448\u0430',                      flag:'\U0001F1F0\U0001F1FF', family:'Turkic',        script:'Cyrillic'   },
+  aze:{ name:'Azerbaijani',          native:'Az\u0259rbaycan',                                                       flag:'\U0001F1E6\U0001F1FF', family:'Turkic',        script:'Latin'      },
+  zho:{ name:'Chinese (Simplified)', native:'\u4E2D\u6587\uFF08\u7B80\u4F53\uFF09',                            flag:'\U0001F1E8\U0001F1F3', family:'Sino-Tibetan',  script:'Han'        },
+  cmn:{ name:'Mandarin Chinese',     native:'\u666E\u901A\u8BDD',                                                  flag:'\U0001F1E8\U0001F1F3', family:'Sino-Tibetan',  script:'Han'        },
+  yue:{ name:'Cantonese',            native:'\u7CB5\u8A9E',                                                         flag:'\U0001F1ED\U0001F1F0', family:'Sino-Tibetan',  script:'Han'        },
+  jpn:{ name:'Japanese',             native:'\u65E5\u672C\u8A9E',                                                  flag:'\U0001F1EF\U0001F1F5', family:'Japonic',       script:'Japanese'   },
+  kor:{ name:'Korean',               native:'\uD55C\uAD6D\uC5B4',                                                  flag:'\U0001F1F0\U0001F1F7', family:'Koreanic',      script:'Hangul'     },
+  vie:{ name:'Vietnamese',           native:'Ti\u1EBFng Vi\u1EC7t',                                                 flag:'\U0001F1FB\U0001F1F3', family:'Austro-Asiatic',script:'Latin'      },
+  khm:{ name:'Khmer',                native:'\u1797\u17B6\u179F\u17B6\u1781\u17D2\u1798\u17C2\u179A',       flag:'\U0001F1F0\U0001F1ED', family:'Austro-Asiatic',script:'Khmer'      },
+  ind:{ name:'Indonesian',           native:'Bahasa Indonesia',                                                       flag:'\U0001F1EE\U0001F1E9', family:'Austronesian',  script:'Latin'      },
+  msa:{ name:'Malay',                native:'Bahasa Melayu',                                                          flag:'\U0001F1F2\U0001F1FE', family:'Austronesian',  script:'Latin'      },
+  tgl:{ name:'Filipino (Tagalog)',   native:'Filipino',                                                               flag:'\U0001F1F5\U0001F1ED', family:'Austronesian',  script:'Latin'      },
+  tam:{ name:'Tamil',                native:'\u0BA4\u0BAE\u0BBF\u0BB4\u0BCD',                                   flag:'\U0001F1EE\U0001F1F3', family:'Dravidian',     script:'Tamil'      },
+  tel:{ name:'Telugu',               native:'\u0C24\u0C46\u0C32\u0C41\u0C17\u0C41',                            flag:'\U0001F1EE\U0001F1F3', family:'Dravidian',     script:'Telugu'     },
+  kan:{ name:'Kannada',              native:'\u0C95\u0CA8\u0CCD\u0CA8\u0CA1',                                   flag:'\U0001F1EE\U0001F1F3', family:'Dravidian',     script:'Kannada'    },
+  mal:{ name:'Malayalam',            native:'\u0D2E\u0D32\u0D2F\u0D3E\u0D33\u0D02',                           flag:'\U0001F1EE\U0001F1F3', family:'Dravidian',     script:'Malayalam'  },
+  tha:{ name:'Thai',                 native:'\u0E20\u0E32\u0E29\u0E32\u0E44\u0E17\u0E22',                    flag:'\U0001F1F9\U0001F1ED', family:'Tai-Kadai',     script:'Thai'       },
+  lao:{ name:'Lao',                  native:'\u0E9E\u0EB2\u0EAA\u0EB2\u0EA5\u0EB2\u0EA7',                    flag:'\U0001F1F1\U0001F1E6', family:'Tai-Kadai',     script:'Lao'        },
+  swh:{ name:'Swahili',              native:'Kiswahili',                                                              flag:'\U0001F1F0\U0001F1EA', family:'Niger-Congo',   script:'Latin'      },
+  hau:{ name:'Hausa',                native:'Hausa',                                                                  flag:'\U0001F1F3\U0001F1EC', family:'Afro-Asiatic',  script:'Latin'      },
+  yor:{ name:'Yoruba',               native:'Yor\u00F9b\u00E1',                                                     flag:'\U0001F1F3\U0001F1EC', family:'Niger-Congo',   script:'Latin'      },
+  ibo:{ name:'Igbo',                 native:'Igbo',                                                                   flag:'\U0001F1F3\U0001F1EC', family:'Niger-Congo',   script:'Latin'      },
+  zul:{ name:'Zulu',                 native:'isiZulu',                                                                flag:'\U0001F1FF\U0001F1E6', family:'Niger-Congo',   script:'Latin'      },
+  kat:{ name:'Georgian',             native:'\u10E5\u10D0\u10E0\u10D7\u10E3\u10DA\u10D8',                     flag:'\U0001F1EC\U0001F1EA', family:'Kartvelian',    script:'Georgian'   },
+  mon:{ name:'Mongolian',            native:'\u041C\u043E\u043D\u0433\u043E\u043B',                             flag:'\U0001F1F2\U0001F1F3', family:'Mongolic',      script:'Cyrillic'   },
+  epo:{ name:'Esperanto',            native:'Esperanto',                                                              flag:'\U0001F30D',            family:'Constructed',   script:'Latin'      },
+  mya:{ name:'Burmese',              native:'\u1019\u103C\u1014\u103A\u1019\u102C',                            flag:'\U0001F1F2\U0001F1F2', family:'Sino-Tibetan',  script:'Myanmar'    },
+  lat:{ name:'Latin',                native:'Latina',                                                                 flag:'\U0001F3DB',            family:'Italic',        script:'Latin'      },
+  hye:{ name:'Armenian',             native:'\u0540\u0561\u0575\u0565\u0580\u0565\u0576',                     flag:'\U0001F1E6\U0001F1F2', family:'IE Isolate',    script:'Armenian'   },
+  arm:{ name:'Armenian',             native:'\u0540\u0561\u0575\u0565\u0580\u0565\u0576',                     flag:'\U0001F1E6\U0001F1F2', family:'IE Isolate',    script:'Armenian'   },
+  sqi:{ name:'Albanian',             native:'Shqip',                                                                  flag:'\U0001F1E6\U0001F1F1', family:'IE Isolate',    script:'Latin'      },
+  eus:{ name:'Basque',               native:'Euskara',                                                                flag:'\U0001F3F4',            family:'Isolate',       script:'Latin'      }
+};
+
+function scriptFallback(str){
+  var blocks=[
+    {re:/[\u0600-\u06FF]/,name:'Arabic script',   note:'Arabic, Urdu, Persian or Pashto',    flag:'\u26a7'},
+    {re:/[\u0590-\u05FF]/,name:'Hebrew script',   note:'Hebrew or Yiddish',                  flag:'\u2721'},
+    {re:/[\u0400-\u04FF]/,name:'Cyrillic script', note:'Russian, Ukrainian, Bulgarian...',   flag:'\U0001F1F7\U0001F1FA'},
+    {re:/[\u4E00-\u9FFF]/,name:'CJK script',      note:'Chinese, Japanese or Korean',        flag:'\U0001F004'},
+    {re:/[\u3040-\u30FF]/,name:'Japanese script', note:'Hiragana or Katakana',               flag:'\U0001F1EF\U0001F1F5'},
+    {re:/[\uAC00-\uD7AF]/,name:'Hangul script',   note:'Korean',                             flag:'\U0001F1F0\U0001F1F7'},
+    {re:/[\u0900-\u097F]/,name:'Devanagari',      note:'Hindi, Marathi or Nepali',           flag:'\U0001F1EE\U0001F1F3'},
+    {re:/[\u0E00-\u0E7F]/,name:'Thai script',     note:'Thai',                               flag:'\U0001F1F9\U0001F1ED'},
+    {re:/[\u10A0-\u10FF]/,name:'Georgian script', note:'Georgian',                           flag:'\U0001F1EC\U0001F1EA'},
+    {re:/[\u0530-\u058F]/,name:'Armenian script', note:'Armenian',                           flag:'\U0001F1E6\U0001F1F2'},
+    {re:/[\u1200-\u137F]/,name:'Ethiopic script', note:'Amharic or Tigrinya',               flag:'\U0001F1EA\U0001F1F9'},
+    {re:/[\u0370-\u03FF]/,name:'Greek script',    note:'Greek',                              flag:'\U0001F1EC\U0001F1F7'},
+    {re:/[a-zA-Z]/,         name:'Latin script',    note:'Add more text for precise detection',flag:'\U0001F1EC\U0001F1E7'}
+  ];
+  for(var i=0;i<blocks.length;i++) if(blocks[i].re.test(str)) return blocks[i];
+  return {name:'Unknown',note:'Cannot determine language',flag:'?'};
+}
+
+async function detectLanguage(){
+  var t = textArea.value.trim();
+  if(!t){ langBadge.textContent = '\u2014 TYPE SOMETHING FIRST \u2014'; return; }
+
+  langBtn.disabled = true;
+  langBtn.textContent = 'Detecting...';
+  langBadge.textContent = 'Analysing...';
+
+  try {
+    if(!francMod) francMod = await import('https://esm.sh/franc-min@6');
+    var franc = francMod.franc;
+
+    var code = franc(t, {minLength:3});
+    if(code === 'und') code = franc(t, {minLength:1});
+
+    if(code === 'und'){
+      var fb = scriptFallback(t);
+      langBadge.textContent = fb.flag+' Best guess: '+fb.name+' \u2014 '+fb.note;
+    } else {
+      var info = ISO_MAP[code];
+      if(info){
+        langBadge.textContent =
+          info.flag+' '+info.name+
+          ' ('+info.native+')'+
+          '  |  '+info.family+' family'+
+          '  |  '+info.script+' script'+
+          '  |  ISO: '+code;
+      } else {
+        var fb2 = scriptFallback(t);
+        langBadge.textContent = fb2.flag+' ISO:'+code+' \u2014 '+fb2.name+' \u2014 '+fb2.note;
+      }
+    }
+    showToast('Language detected!');
+  } catch(err){
+    langBadge.textContent = 'Detection failed: '+err.message;
+    showToast('Error: '+err.message);
+  } finally {
+    langBtn.disabled = false;
+    langBtn.textContent = 'Detect Language \U0001F50D';
+  }
+}
+
+/* ── Init ─────────────────────────────────────────────────── */
+textArea.addEventListener('input', updateStats);
+window.onload = function(){
+  refreshStatus();
+  try {
+    var s = localStorage.getItem('te_pro_data');
+    if(s){ textArea.value = s; updateStats(); }
+  } catch(e){}
+};
+</script>
+</body>
+</html>
