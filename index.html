@@ -50,6 +50,19 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
 .footer-links a{text-decoration:underline;cursor:pointer;color:inherit;margin:0 6px;}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;padding:12px 25px;border:3px solid var(--accent);font-weight:bold;z-index:1000;pointer-events:none;border-radius:0;}
 
+
+/* Auto Corrector strip */
+.corrector-strip{margin-top:12px;background:#fff;border:3px solid var(--primary);box-shadow:4px 4px 0 var(--primary);}
+.corrector-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--primary);color:#fff;flex-wrap:wrap;}
+.corrector-header label{font-weight:900;font-size:13px;white-space:nowrap;font-family:'JetBrains Mono',monospace;}
+.corrector-header select{flex:1;min-width:180px;padding:6px 10px;border:2px solid #fff;background:#fff;color:var(--primary);font-weight:700;font-size:13px;cursor:pointer;outline:none;font-family:'JetBrains Mono',monospace;}
+.corrector-actions{display:flex;gap:8px;padding:10px 14px;flex-wrap:wrap;align-items:center;background:#f9f9f9;border-top:2px solid #eee;}
+.corrector-actions button{padding:9px 16px;font-size:13px;flex:1;min-width:120px;}
+.corrector-status{font-family:'JetBrains Mono',monospace;font-size:12px;color:#555;padding:0 14px 10px;background:#f9f9f9;min-height:22px;}
+.corrector-status.has-fixes{color:#008000;font-weight:700;}
+.corrector-status.no-fixes{color:#888;}
+.highlight-error{background:#ffe0e0;border-bottom:2px solid #ff3e00;cursor:pointer;position:relative;}
+
 /* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:900;justify-content:center;align-items:center;padding:16px;}
 .modal-overlay.open{display:flex;}
@@ -121,6 +134,50 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
     <button onclick="convertLayout('arToEn')">AR &#x27A1; EN</button>
     <button style="background:var(--primary);color:#fff" onclick="smartAutoFix()">Smart Fix &#x1F9E0;</button>
   </div>
+
+  <!-- AUTO CORRECTOR -->
+  <div class="corrector-strip">
+    <div class="corrector-header">
+      <label>&#x270F;&#xFE0F; AUTO CORRECTOR:</label>
+      <select id="corrector-lang" onchange="onCorrectorLangChange()">
+        <option value="">&#x2014; Select Language &#x2014;</option>
+        <optgroup label="Arabic">
+          <option value="ar">Arabic &#x2014; &#x0627;&#x0644;&#x0639;&#x0631;&#x0628;&#x064A;&#x0629;</option>
+        </optgroup>
+        <optgroup label="English">
+          <option value="en">English</option>
+        </optgroup>
+        <optgroup label="French">
+          <option value="fr">French &#x2014; Fran&#xE7;ais</option>
+        </optgroup>
+        <optgroup label="German">
+          <option value="de">German &#x2014; Deutsch</option>
+        </optgroup>
+        <optgroup label="Spanish">
+          <option value="es">Spanish &#x2014; Espa&#xF1;ol</option>
+        </optgroup>
+        <optgroup label="Portuguese">
+          <option value="pt">Portuguese &#x2014; Portugu&#xEA;s</option>
+        </optgroup>
+        <optgroup label="Italian">
+          <option value="it">Italian &#x2014; Italiano</option>
+        </optgroup>
+        <optgroup label="Turkish">
+          <option value="tr">Turkish &#x2014; T&#xFC;rk&#xE7;e</option>
+        </optgroup>
+        <optgroup label="Russian">
+          <option value="ru">Russian &#x2014; &#x0420;&#x0443;&#x0441;&#x0441;&#x043A;&#x0438;&#x0439;</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="corrector-actions">
+      <button onclick="runAutoCorrect()" id="btn-correct" disabled>&#x2728; Auto Correct</button>
+      <button onclick="showErrors()" id="btn-check" disabled>&#x1F50D; Check Errors</button>
+      <button onclick="clearCorrections()" style="color:#888;background:#f0f0f0;box-shadow:none;border-color:#ccc;">&#x21BA; Reset</button>
+    </div>
+    <div class="corrector-status no-fixes" id="corrector-status">Select a language to enable correction.</div>
+  </div>
+
 
   <div class="lang-strip">
     <label>&#x1F310; DETECTED LANGUAGE:</label>
@@ -196,7 +253,8 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
   </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script src="dict.js"></script>
+<script>
 /* ============================================================
    TEXT ENGINE PRO — main script
    All functions defined before any event listeners.
@@ -676,6 +734,150 @@ function detectLanguage(){
     langBtn.textContent = 'Detect Language 🔍';
   });
 }
+
+/* ============================================================
+   AUTO CORRECTOR ENGINE
+   Built-in correction dictionaries for 9 languages.
+   No external dependencies — works 100% offline.
+   ============================================================ */
+
+/* CORRECTIONS loaded from dict.js */
+
+/* Current selected correction language */
+var correctorLang = '';
+
+function onCorrectorLangChange(){
+  correctorLang = document.getElementById('corrector-lang').value;
+  var btnCorrect = document.getElementById('btn-correct');
+  var btnCheck   = document.getElementById('btn-check');
+  var status     = document.getElementById('corrector-status');
+  if(correctorLang){
+    btnCorrect.disabled = false;
+    btnCheck.disabled   = false;
+    var names = {
+      'en':'English','ar':'Arabic \u2014 \u0627\u0644\u0639\u0631\u0628\u064A\u0629',
+      'fr':'French \u2014 Fran\u00E7ais','de':'German \u2014 Deutsch',
+      'es':'Spanish \u2014 Espa\u00F1ol','pt':'Portuguese \u2014 Portugu\u00EAs',
+      'it':'Italian \u2014 Italiano','tr':'Turkish \u2014 T\u00FCrk\u00E7e',
+      'ru':'Russian \u2014 \u0420\u0443\u0441\u0441\u043A\u0438\u0439'
+    };
+    status.className = 'corrector-status no-fixes';
+    status.textContent = 'Ready to correct ' + (names[correctorLang]||correctorLang) + '. Click Auto Correct or Check Errors.';
+    // Also update textarea lang + spellcheck for browser-native hints
+    textArea.lang = correctorLang === 'ar' ? 'ar' : correctorLang;
+    textArea.spellcheck = true;
+  } else {
+    btnCorrect.disabled = true;
+    btnCheck.disabled   = true;
+    status.className = 'corrector-status no-fixes';
+    status.textContent = 'Select a language to enable correction.';
+    textArea.spellcheck = false;
+  }
+}
+
+function runAutoCorrect(){
+  if(!correctorLang){ showToast('Select a language first!'); return; }
+  var dict = CORRECTIONS[correctorLang];
+  if(!dict){ showToast('No dictionary for this language.'); return; }
+
+  var t = textArea.value;
+  if(!t){ showToast('Nothing to correct!'); return; }
+
+  var original = t;
+  var fixes = 0;
+
+  // Case-insensitive word-boundary replacement for Latin scripts
+  // Exact match replacement for Arabic/Russian (no case)
+  var isLatin = (correctorLang !== 'ar' && correctorLang !== 'ru');
+
+  if(isLatin){
+    for(var wrong in dict){
+      var correct = dict[wrong];
+      // Whole-word, case-insensitive
+      var re = new RegExp('(?<![\\w\u00C0-\u024F])' + escapeRegex(wrong) + '(?![\\w\u00C0-\u024F])', 'gi');
+      var before = t;
+      t = t.replace(re, function(match){
+        // Preserve capitalisation
+        if(match[0] === match[0].toUpperCase() && match[0].toLowerCase() !== match[0]){
+          return correct.charAt(0).toUpperCase() + correct.slice(1);
+        }
+        return correct;
+      });
+      if(t !== before) fixes++;
+    }
+  } else {
+    // Arabic / Russian — direct substring replacement
+    for(var wrong in dict){
+      var correct = dict[wrong];
+      var before = t;
+      t = t.split(wrong).join(correct);
+      if(t !== before) fixes++;
+    }
+  }
+
+  textArea.value = t;
+  updateStats();
+
+  var status = document.getElementById('corrector-status');
+  if(fixes > 0){
+    status.className = 'corrector-status has-fixes';
+    status.textContent = '\u2713 ' + fixes + ' correction' + (fixes > 1 ? 's' : '') + ' applied!';
+    showToast('\u2728 ' + fixes + ' correction' + (fixes > 1 ? 's' : '') + ' applied!');
+  } else {
+    status.className = 'corrector-status no-fixes';
+    status.textContent = '\u2714 No common errors found — text looks good!';
+    showToast('No errors found \u2705');
+  }
+}
+
+function showErrors(){
+  if(!correctorLang){ showToast('Select a language first!'); return; }
+  var dict = CORRECTIONS[correctorLang];
+  if(!dict){ return; }
+
+  var t = textArea.value;
+  if(!t){ showToast('Nothing to check!'); return; }
+
+  var found = [];
+  var isLatin = (correctorLang !== 'ar' && correctorLang !== 'ru');
+
+  if(isLatin){
+    for(var wrong in dict){
+      var re = new RegExp('(?<![\\w\u00C0-\u024F])' + escapeRegex(wrong) + '(?![\\w\u00C0-\u024F])', 'gi');
+      if(re.test(t)) found.push(wrong + ' \u2192 ' + dict[wrong]);
+    }
+  } else {
+    for(var wrong in dict){
+      if(t.indexOf(wrong) !== -1) found.push(wrong + ' \u2192 ' + dict[wrong]);
+    }
+  }
+
+  var status = document.getElementById('corrector-status');
+  if(found.length > 0){
+    status.className = 'corrector-status has-fixes';
+    status.textContent = found.length + ' issue' + (found.length > 1 ? 's' : '') + ' found: ' + found.slice(0,5).join(', ') + (found.length > 5 ? '...' : '');
+    showToast(found.length + ' error' + (found.length > 1 ? 's' : '') + ' found!');
+  } else {
+    status.className = 'corrector-status no-fixes';
+    status.textContent = '\u2714 No common errors found!';
+    showToast('Text looks great \u2705');
+  }
+}
+
+function clearCorrections(){
+  document.getElementById('corrector-lang').value = '';
+  correctorLang = '';
+  onCorrectorLangChange();
+  textArea.spellcheck = false;
+  var status = document.getElementById('corrector-status');
+  status.className = 'corrector-status no-fixes';
+  status.textContent = 'Select a language to enable correction.';
+}
+
+function escapeRegex(s){
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 
 /* ── Init ─────────────────────────────────────────────────── */
 textArea.addEventListener('input', updateStats);
