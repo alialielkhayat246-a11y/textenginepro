@@ -63,6 +63,29 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
 .corrector-status.no-fixes{color:#888;}
 .highlight-error{background:#ffe0e0;border-bottom:2px solid #ff3e00;cursor:pointer;position:relative;}
 
+
+/* Errors panel modal */
+.errors-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:950;justify-content:center;align-items:center;padding:16px;}
+.errors-overlay.open{display:flex;}
+.errors-box{background:#fff;border:4px solid var(--primary);box-shadow:10px 10px 0 var(--primary);max-width:680px;width:100%;max-height:85vh;display:flex;flex-direction:column;}
+.errors-box-header{background:var(--primary);color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.errors-box-header h3{margin:0;font-size:1rem;font-family:'JetBrains Mono',monospace;font-weight:900;}
+.errors-box-close{background:none;border:2px solid #fff;color:#fff;font-weight:900;padding:4px 12px;cursor:pointer;font-size:14px;box-shadow:none;}
+.errors-box-close:hover{background:var(--accent);border-color:var(--accent);}
+.errors-summary{padding:10px 18px;background:#f9f9f9;border-bottom:2px solid #eee;font-size:13px;font-family:'JetBrains Mono',monospace;color:#555;flex-shrink:0;}
+.errors-list{overflow-y:auto;padding:12px 18px;flex:1;}
+.error-item{display:flex;align-items:center;gap:10px;padding:9px 12px;margin-bottom:8px;border:2px solid #eee;background:#fff;transition:.1s;}
+.error-item:hover{border-color:var(--accent);background:#fff8f6;}
+.error-wrong{font-family:'JetBrains Mono',monospace;font-weight:900;color:#cc0000;font-size:14px;flex:1;text-decoration:line-through;}
+.error-arrow{color:#aaa;font-size:16px;flex-shrink:0;}
+.error-right{font-family:'JetBrains Mono',monospace;font-weight:700;color:#006600;font-size:14px;flex:1;}
+.error-fix-btn{padding:5px 12px;background:var(--primary);color:#fff;border:2px solid var(--primary);font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap;box-shadow:2px 2px 0 #555;flex-shrink:0;}
+.error-fix-btn:hover{background:var(--accent);border-color:var(--accent);}
+.error-fix-btn.fixed{background:#006600;border-color:#006600;pointer-events:none;}
+.errors-footer{padding:12px 18px;border-top:2px solid #eee;display:flex;gap:10px;flex-shrink:0;background:#fff;}
+.errors-footer button{flex:1;padding:10px;}
+.errors-empty{text-align:center;padding:40px 20px;color:#888;font-family:'JetBrains Mono',monospace;font-size:13px;}
+
 /* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:900;justify-content:center;align-items:center;padding:16px;}
 .modal-overlay.open{display:flex;}
@@ -81,6 +104,23 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
 <amp-auto-ads type="adsense" data-ad-client="ca-pub-6576366354422516"></amp-auto-ads>
 
 <!-- PAGE WRAPPER with side ads -->
+
+<!-- ERRORS PANEL MODAL -->
+<div class="errors-overlay" id="errorsModal">
+  <div class="errors-box">
+    <div class="errors-box-header">
+      <h3>&#x1F50D; Spelling Errors Found</h3>
+      <button class="errors-box-close" onclick="closeErrorsModal()">&#x2715; CLOSE</button>
+    </div>
+    <div class="errors-summary" id="errors-summary">Scanning...</div>
+    <div class="errors-list" id="errors-list"></div>
+    <div class="errors-footer">
+      <button onclick="fixAllFromModal()" style="background:var(--primary);color:#fff;border:3px solid var(--primary);">&#x2728; Fix All</button>
+      <button onclick="closeErrorsModal()" style="background:#f0f0f0;color:#555;border:3px solid #ccc;box-shadow:none;">Close</button>
+    </div>
+  </div>
+</div>
+
 <!-- PRIVACY MODAL -->
 <div class="modal-overlay" id="privacyModal" role="dialog" aria-modal="true" aria-label="Privacy Policy">
   <div class="modal-box">
@@ -743,140 +783,259 @@ function detectLanguage(){
 
 /* CORRECTIONS loaded from dict.js */
 
-/* Current selected correction language */
+/* ── Auto Corrector state ─────────────────────────────── */
 var correctorLang = '';
+var _pendingFixes = [];   // cache of {wrong, right, count} for modal
+
+/* Language display names */
+var LANG_NAMES = {
+  'en':'English',
+  'ar':'Arabic \u2014 \u0627\u0644\u0639\u0631\u0628\u064a\u0629',
+  'fr':'French \u2014 Fran\u00e7ais',
+  'de':'German \u2014 Deutsch',
+  'es':'Spanish \u2014 Espa\u00f1ol',
+  'pt':'Portuguese \u2014 Portugu\u00eas',
+  'it':'Italian \u2014 Italiano',
+  'tr':'Turkish \u2014 T\u00fcrk\u00e7e',
+  'ru':'Russian \u2014 \u0420\u0443\u0441\u0441\u043a\u0438\u0439'
+};
 
 function onCorrectorLangChange(){
   correctorLang = document.getElementById('corrector-lang').value;
   var btnCorrect = document.getElementById('btn-correct');
   var btnCheck   = document.getElementById('btn-check');
   var status     = document.getElementById('corrector-status');
+
   if(correctorLang){
     btnCorrect.disabled = false;
     btnCheck.disabled   = false;
-    var names = {
-      'en':'English','ar':'Arabic \u2014 \u0627\u0644\u0639\u0631\u0628\u064A\u0629',
-      'fr':'French \u2014 Fran\u00E7ais','de':'German \u2014 Deutsch',
-      'es':'Spanish \u2014 Espa\u00F1ol','pt':'Portuguese \u2014 Portugu\u00EAs',
-      'it':'Italian \u2014 Italiano','tr':'Turkish \u2014 T\u00FCrk\u00E7e',
-      'ru':'Russian \u2014 \u0420\u0443\u0441\u0441\u043A\u0438\u0439'
-    };
-    status.className = 'corrector-status no-fixes';
-    status.textContent = 'Ready to correct ' + (names[correctorLang]||correctorLang) + '. Click Auto Correct or Check Errors.';
-    // Also update textarea lang + spellcheck for browser-native hints
-    textArea.lang = correctorLang === 'ar' ? 'ar' : correctorLang;
+    status.className    = 'corrector-status no-fixes';
+    status.textContent  = 'Ready \u2014 ' + (LANG_NAMES[correctorLang] || correctorLang) + ' dictionary loaded (' + Object.keys(CORRECTIONS[correctorLang]||{}).length + ' entries).';
+    textArea.setAttribute('lang', correctorLang);
     textArea.spellcheck = true;
   } else {
     btnCorrect.disabled = true;
     btnCheck.disabled   = true;
-    status.className = 'corrector-status no-fixes';
-    status.textContent = 'Select a language to enable correction.';
+    status.className    = 'corrector-status no-fixes';
+    status.textContent  = 'Select a language to enable correction.';
     textArea.spellcheck = false;
   }
 }
 
-function runAutoCorrect(){
-  if(!correctorLang){ showToast('Select a language first!'); return; }
-  var dict = CORRECTIONS[correctorLang];
-  if(!dict){ showToast('No dictionary for this language.'); return; }
+/* Safe regex escape */
+function escapeRegex(s){
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
-  var t = textArea.value;
-  if(!t){ showToast('Nothing to correct!'); return; }
+/* Check if a language uses Latin script */
+function isLatinLang(lang){
+  return ['en','fr','de','es','pt','it','tr'].indexOf(lang) !== -1;
+}
 
-  var original = t;
-  var fixes = 0;
+/* Find all errors in text, return array of {wrong, right, count} */
+function findErrors(t, lang){
+  if(!t || !lang) return [];
+  var dict = (typeof CORRECTIONS !== 'undefined') ? CORRECTIONS[lang] : null;
+  if(!dict){ return []; }
 
-  // Case-insensitive word-boundary replacement for Latin scripts
-  // Exact match replacement for Arabic/Russian (no case)
-  var isLatin = (correctorLang !== 'ar' && correctorLang !== 'ru');
+  var found = [];
+  var isLatin = isLatinLang(lang);
 
   if(isLatin){
     for(var wrong in dict){
-      var correct = dict[wrong];
-      // Whole-word, case-insensitive
-      var re = new RegExp('(?<![\\w\u00C0-\u024F])' + escapeRegex(wrong) + '(?![\\w\u00C0-\u024F])', 'gi');
-      var before = t;
-      t = t.replace(re, function(match){
-        // Preserve capitalisation
-        if(match[0] === match[0].toUpperCase() && match[0].toLowerCase() !== match[0]){
-          return correct.charAt(0).toUpperCase() + correct.slice(1);
-        }
-        return correct;
-      });
-      if(t !== before) fixes++;
+      // Use simple word boundary approach that works across all browsers
+      var escaped = escapeRegex(wrong);
+      var re = new RegExp('(^|[\\s.,!?;:\'"\\(\\)\\[\\]{}<>]|^)(' + escaped + ')([\\s.,!?;:\'"\\(\\)\\[\\]{}<>]|$)', 'gi');
+      var count = 0;
+      var tmp = t;
+      var m;
+      re.lastIndex = 0;
+      while((m = re.exec(tmp)) !== null){
+        count++;
+        re.lastIndex = m.index + 1;  // allow overlapping
+      }
+      if(count > 0) found.push({ wrong: wrong, right: dict[wrong], count: count });
     }
   } else {
-    // Arabic / Russian — direct substring replacement
+    // Arabic / Russian: exact substring match
     for(var wrong in dict){
-      var correct = dict[wrong];
-      var before = t;
-      t = t.split(wrong).join(correct);
-      if(t !== before) fixes++;
+      if(wrong === dict[wrong]) continue; // skip identity entries
+      var idx = t.indexOf(wrong);
+      if(idx !== -1){
+        var count = 0;
+        var pos = 0;
+        while((pos = t.indexOf(wrong, pos)) !== -1){ count++; pos++; }
+        found.push({ wrong: wrong, right: dict[wrong], count: count });
+      }
     }
   }
+  return found;
+}
 
-  textArea.value = t;
+/* Apply a single correction to textArea */
+function applyFix(wrong, right, lang){
+  var t = textArea.value;
+  var isLatin = isLatinLang(lang);
+  var result;
+
+  if(isLatin){
+    var escaped = escapeRegex(wrong);
+    var re = new RegExp('(^|[\\s.,!?;:\'"\\(\\)\\[\\]{}<>])(' + escaped + ')([\\s.,!?;:\'"\\(\\)\\[\\]{}<>]|$)', 'gi');
+    result = t.replace(re, function(full, pre, match, post){
+      var fixed = right;
+      // Preserve original capitalisation
+      if(match.length > 0 && match[0] === match[0].toUpperCase() && match[0] !== match[0].toLowerCase()){
+        fixed = right.charAt(0).toUpperCase() + right.slice(1);
+      }
+      return pre + fixed + post;
+    });
+  } else {
+    result = t.split(wrong).join(right);
+  }
+  textArea.value = result;
   updateStats();
+  return result !== t;
+}
+
+/* ── Auto Correct button ──────────────────────────────── */
+function runAutoCorrect(){
+  if(!correctorLang){ showToast('Select a language first!'); return; }
+  if(typeof CORRECTIONS === 'undefined'){ showToast('Dictionary not loaded. Refresh page.'); return; }
+  var t = textArea.value;
+  if(!t){ showToast('Nothing to correct!'); return; }
+
+  var errors = findErrors(t, correctorLang);
+  var fixes = 0;
+
+  for(var i = 0; i < errors.length; i++){
+    if(applyFix(errors[i].wrong, errors[i].right, correctorLang)) fixes++;
+  }
 
   var status = document.getElementById('corrector-status');
   if(fixes > 0){
-    status.className = 'corrector-status has-fixes';
-    status.textContent = '\u2713 ' + fixes + ' correction' + (fixes > 1 ? 's' : '') + ' applied!';
-    showToast('\u2728 ' + fixes + ' correction' + (fixes > 1 ? 's' : '') + ' applied!');
+    status.className   = 'corrector-status has-fixes';
+    status.textContent = '\u2713 ' + fixes + ' correction' + (fixes !== 1 ? 's' : '') + ' applied!';
+    showToast('\u2728 ' + fixes + ' correction' + (fixes !== 1 ? 's' : '') + ' applied!');
   } else {
-    status.className = 'corrector-status no-fixes';
-    status.textContent = '\u2714 No common errors found — text looks good!';
+    status.className   = 'corrector-status no-fixes';
+    status.textContent = '\u2714 No common errors found \u2014 text looks good!';
     showToast('No errors found \u2705');
   }
 }
 
+/* ── Check Errors button \u2192 open modal ────────────────── */
 function showErrors(){
   if(!correctorLang){ showToast('Select a language first!'); return; }
-  var dict = CORRECTIONS[correctorLang];
-  if(!dict){ return; }
-
+  if(typeof CORRECTIONS === 'undefined'){ showToast('Dictionary not loaded. Refresh page.'); return; }
   var t = textArea.value;
   if(!t){ showToast('Nothing to check!'); return; }
 
-  var found = [];
-  var isLatin = (correctorLang !== 'ar' && correctorLang !== 'ru');
+  _pendingFixes = findErrors(t, correctorLang);
+  openErrorsModal(_pendingFixes);
+}
 
-  if(isLatin){
-    for(var wrong in dict){
-      var re = new RegExp('(?<![\\w\u00C0-\u024F])' + escapeRegex(wrong) + '(?![\\w\u00C0-\u024F])', 'gi');
-      if(re.test(t)) found.push(wrong + ' \u2192 ' + dict[wrong]);
-    }
+/* ── Errors modal ─────────────────────────────────────── */
+function openErrorsModal(errors){
+  var overlay  = document.getElementById('errorsModal');
+  var summary  = document.getElementById('errors-summary');
+  var listEl   = document.getElementById('errors-list');
+
+  listEl.innerHTML = '';
+
+  if(errors.length === 0){
+    summary.textContent = '\u2714 No spelling errors found \u2014 your text looks great!';
+    listEl.innerHTML = '<div class="errors-empty">\u2705 No issues detected in the current text.</div>';
   } else {
-    for(var wrong in dict){
-      if(t.indexOf(wrong) !== -1) found.push(wrong + ' \u2192 ' + dict[wrong]);
-    }
+    var total = errors.reduce(function(s,e){ return s + e.count; }, 0);
+    summary.textContent = errors.length + ' unique error' + (errors.length !== 1 ? 's' : '') +
+                          ' found (' + total + ' occurrence' + (total !== 1 ? 's' : '') +
+                          ') \u2014 click Fix to correct individually or Fix All to correct all.';
+
+    errors.forEach(function(e, idx){
+      var item = document.createElement('div');
+      item.className = 'error-item';
+      item.id = 'err-item-' + idx;
+
+      var wrongEl = document.createElement('span');
+      wrongEl.className = 'error-wrong';
+      wrongEl.textContent = e.wrong + (e.count > 1 ? ' \u00d7' + e.count : '');
+
+      var arrowEl = document.createElement('span');
+      arrowEl.className = 'error-arrow';
+      arrowEl.textContent = '\u2192';
+
+      var rightEl = document.createElement('span');
+      rightEl.className = 'error-right';
+      rightEl.textContent = e.right;
+
+      var fixBtn = document.createElement('button');
+      fixBtn.className = 'error-fix-btn';
+      fixBtn.textContent = 'Fix';
+      fixBtn.setAttribute('data-idx', idx);
+      fixBtn.onclick = function(){
+        var i = parseInt(this.getAttribute('data-idx'));
+        var err = _pendingFixes[i];
+        if(err && applyFix(err.wrong, err.right, correctorLang)){
+          this.textContent = '\u2713 Fixed';
+          this.classList.add('fixed');
+          document.getElementById('err-item-' + i).style.opacity = '0.45';
+          // Update summary
+          var remaining = document.querySelectorAll('.error-fix-btn:not(.fixed)').length;
+          document.getElementById('errors-summary').textContent =
+            remaining + ' error' + (remaining !== 1 ? 's' : '') + ' remaining.';
+        }
+      };
+
+      item.appendChild(wrongEl);
+      item.appendChild(arrowEl);
+      item.appendChild(rightEl);
+      item.appendChild(fixBtn);
+      listEl.appendChild(item);
+    });
   }
 
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeErrorsModal(){
+  document.getElementById('errorsModal').classList.remove('open');
+  document.body.style.overflow = '';
+  // Refresh corrector status
+  var remaining = document.querySelectorAll('.error-fix-btn:not(.fixed)').length;
   var status = document.getElementById('corrector-status');
-  if(found.length > 0){
-    status.className = 'corrector-status has-fixes';
-    status.textContent = found.length + ' issue' + (found.length > 1 ? 's' : '') + ' found: ' + found.slice(0,5).join(', ') + (found.length > 5 ? '...' : '');
-    showToast(found.length + ' error' + (found.length > 1 ? 's' : '') + ' found!');
-  } else {
-    status.className = 'corrector-status no-fixes';
-    status.textContent = '\u2714 No common errors found!';
-    showToast('Text looks great \u2705');
+  if(_pendingFixes.length > 0){
+    if(remaining === 0){
+      status.className   = 'corrector-status has-fixes';
+      status.textContent = '\u2713 All errors fixed!';
+    } else {
+      status.className   = 'corrector-status has-fixes';
+      status.textContent = remaining + ' error' + (remaining !== 1 ? 's' : '') + ' still remaining.';
+    }
   }
+}
+
+function fixAllFromModal(){
+  var btns = document.querySelectorAll('.error-fix-btn:not(.fixed)');
+  btns.forEach(function(btn){ btn.click(); });
+  setTimeout(function(){
+    closeErrorsModal();
+    showToast('\u2728 All errors fixed!');
+  }, 300);
 }
 
 function clearCorrections(){
   document.getElementById('corrector-lang').value = '';
   correctorLang = '';
+  _pendingFixes = [];
   onCorrectorLangChange();
   textArea.spellcheck = false;
-  var status = document.getElementById('corrector-status');
-  status.className = 'corrector-status no-fixes';
-  status.textContent = 'Select a language to enable correction.';
 }
 
-function escapeRegex(s){
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
+/* Close errors modal on backdrop click */
+document.getElementById('errorsModal').addEventListener('click', function(e){
+  if(e.target === this) closeErrorsModal();
+});
 
 
 /* ── Init ─────────────────────────────────────────────────── */
