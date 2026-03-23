@@ -51,7 +51,9 @@ textarea{width:100%;min-height:250px;padding:20px;font-size:18px;border:4px soli
 .buttons-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:15px;}
 button{padding:14px;border:3px solid var(--primary);background:#fff;font-weight:900;font-size:13px;cursor:pointer;transition:.1s;box-shadow:4px 4px 0 var(--primary);}
 button:active{transform:translate(2px,2px);box-shadow:none;background:var(--accent);color:#fff;}
-.lang-strip{display:flex;align-items:center;gap:10px;margin-top:12px;background:#f0f0f0;border:3px solid var(--primary);padding:10px 14px;flex-wrap:wrap;}
+.font-dropdown-wrap{position:relative;display:inline-block;flex:1;min-width:140px;}
+.font-dropdown-wrap select{width:100%;padding:14px 10px;border:3px solid var(--primary);background:#fff;font-weight:900;font-size:13px;cursor:pointer;box-shadow:4px 4px 0 var(--primary);appearance:none;-webkit-appearance:none;outline:none;font-family:'Segoe UI',sans-serif;}
+.font-dropdown-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:14px;}background:#f0f0f0;border:3px solid var(--primary);padding:10px 14px;flex-wrap:wrap;}
 .lang-strip label{font-weight:900;font-size:13px;white-space:nowrap;}
 .lang-badge{flex:1;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;padding:5px 12px;background:var(--primary);color:#fff;min-width:160px;}
 .lang-btn{padding:8px 16px;border:3px solid var(--primary);background:#fff;font-weight:900;font-size:13px;cursor:pointer;box-shadow:3px 3px 0 var(--primary);transition:.1s;white-space:nowrap;}
@@ -79,7 +81,7 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
 .corrector-status{font-family:'JetBrains Mono',monospace;font-size:12px;color:#555;padding:0 14px 10px;background:#f9f9f9;min-height:22px;}
 .corrector-status.has-fixes{color:#008000;font-weight:700;}
 .corrector-status.no-fixes{color:#888;}
-.highlight-error{background:#FFE600;border-bottom:2px solid #FF3E00;cursor:text;position:relative;border-radius:2px;}
+.highlight-error{background:rgba(255,230,0,0.45);border-bottom:2px solid #FF3E00;cursor:text;position:relative;border-radius:2px;}
 
 /* Hover correction panel */
 #hover-panel{display:none;position:fixed;z-index:9999;background:#000;border:2px solid #FF3E00;box-shadow:4px 4px 0 rgba(0,0,0,.4);padding:0;min-width:180px;pointer-events:auto;}
@@ -243,8 +245,40 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
     <button onclick="removeSpaces()">Clean Space</button>
     <button onclick="copyText()">Copy &#x2705;</button>
     <button onclick="clearText()" style="color:red">Clear</button>
-    <button onclick="convertLayout('enToAr')">EN &#x27A1; AR</button>
     <button onclick="convertLayout('arToEn')">AR &#x27A1; EN</button>
+    <div class="font-dropdown-wrap">
+      <select id="font-picker" onchange="applyFont(this.value)" title="Font Style">
+        <option value="">🔤 Font Style</option>
+        <optgroup label="Sans-Serif">
+          <option value="Arial, sans-serif">Arial</option>
+          <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+          <option value="'Segoe UI', sans-serif">Segoe UI</option>
+          <option value="Tahoma, sans-serif">Tahoma</option>
+          <option value="Verdana, sans-serif">Verdana</option>
+          <option value="Calibri, sans-serif">Calibri</option>
+        </optgroup>
+        <optgroup label="Serif">
+          <option value="Georgia, serif">Georgia</option>
+          <option value="'Times New Roman', serif">Times New Roman</option>
+          <option value="Garamond, serif">Garamond</option>
+          <option value="Palatino, serif">Palatino</option>
+        </optgroup>
+        <optgroup label="Monospace">
+          <option value="'JetBrains Mono', monospace"  >JetBrains Mono</option>
+          <option value="'Courier New', monospace">Courier New</option>
+          <option value="'Lucida Console', monospace">Lucida Console</option>
+        </optgroup>
+        <optgroup label="Display">
+          <option value="Impact, fantasy">Impact</option>
+          <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+          <option value="'Comic Sans MS', cursive">Comic Sans</option>
+        </optgroup>
+        <optgroup label="Arabic">
+          <option value="Cairo, sans-serif">Cairo</option>
+          <option value="'Noto Sans Arabic', sans-serif">Noto Arabic</option>
+        </optgroup>
+      </select>
+    </div>
     <button style="background:var(--primary);color:#fff" onclick="smartAutoFix()">Smart Fix &#x1F9E0;</button>
   </div>
 
@@ -2838,10 +2872,10 @@ function updateStats(){
 
 /* ── Text tools ──────────────────────────────────────────── */
 function upper(){
-  textArea.value = textArea.value.toUpperCase(); updateStats();
+  pushUndo(); textArea.value = textArea.value.toUpperCase(); updateStats();
 }
 function lower(){
-  textArea.value = textArea.value.toLowerCase(); updateStats();
+  pushUndo(); textArea.value = textArea.value.toLowerCase(); updateStats();
 }
 function titleCase(){
   // Title Case: first letter of every word uppercase, rest lowercase.
@@ -2865,6 +2899,15 @@ function capitalize(){
 }
 function removeSpaces(){
   textArea.value = textArea.value.replace(/\s+/g,' ').trim(); updateStats();
+}
+
+/* ── Font picker ──────────────────────────────────────────── */
+function applyFont(fontFamily){
+  if(!fontFamily) return;
+  clearHighlights();
+  textArea.style.fontFamily = fontFamily;
+  // Trigger auto-scan after font change
+  autoScanOnIdle();
 }
 function clearText(){
   if(!confirm('Clear all text?')) return;
@@ -3426,6 +3469,7 @@ function applyFix(wrong, right, lang){
     result = t.split(wrong).join(right);
   }
   textArea.value = result;
+  pushUndo();
   updateStats();
   return result !== t;
 }
@@ -3725,19 +3769,60 @@ function updateStatusFromWs(){
   }
 }
 
+/* ── Undo history stack ───────────────────────────────────────
+   We maintain our own stack because programmatic innerHTML changes
+   (highlights, applyFix) break the browser's native undo history.  */
+var _undoStack = [];
+var _undoPointer = -1;
+var _undoTimer = null;
+
+function pushUndo(){
+  // Snapshot plain text only (no highlight spans)
+  var snap = textArea.innerText.replace(/\u00A0/g,' ');
+  // If same as current top, skip
+  if(_undoStack[_undoPointer] === snap) return;
+  // Truncate any redo states ahead
+  _undoStack = _undoStack.slice(0, _undoPointer + 1);
+  _undoStack.push(snap);
+  if(_undoStack.length > 200) _undoStack.shift();
+  _undoPointer = _undoStack.length - 1;
+}
+
+function undoText(){
+  if(_undoPointer <= 0){ showToast('Nothing to undo'); return; }
+  _undoPointer--;
+  clearHighlights();
+  textArea.value = _undoStack[_undoPointer];
+  wsWords = [];
+  updateStats();
+  autoScanOnIdle();
+}
+
 /* Strip HTML on paste — keep plain text only */
 textArea.addEventListener('paste', function(e){
   e.preventDefault();
+  pushUndo();
   var text = (e.clipboardData || window.clipboardData).getData('text/plain');
   document.execCommand('insertText', false, text);
 });
 
-/* Prevent newline-as-<div> in some browsers */
+/* Keydown: Enter newline + Ctrl+Z undo */
 textArea.addEventListener('keydown', function(e){
   if(e.key === 'Enter'){
     e.preventDefault();
+    pushUndo();
     document.execCommand('insertText', false, '\n');
   }
+  if((e.ctrlKey || e.metaKey) && e.key === 'z'){
+    e.preventDefault();
+    undoText();
+  }
+});
+
+/* Push undo snapshot on every input with debounce */
+textArea.addEventListener('input', function(){
+  clearTimeout(_undoTimer);
+  _undoTimer = setTimeout(pushUndo, 400);
 });
 window.onload = function(){
   refreshStatus();
@@ -3745,7 +3830,7 @@ window.onload = function(){
   onCorrectorLangChange();
   try {
     var s = localStorage.getItem('te_pro_data');
-    if(s){ textArea.value = s; updateStats(); }
+    if(s){ textArea.value = s; updateStats(); pushUndo(); }
   } catch(e){}
 };
 </script>
