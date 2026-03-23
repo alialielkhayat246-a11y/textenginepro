@@ -99,33 +99,6 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
 .modal-close:hover,.modal-close:focus{background:var(--accent);}
 .modal-accept{background:var(--primary);color:#fff;border:3px solid var(--primary);padding:12px 28px;font-weight:900;font-size:14px;cursor:pointer;display:block;width:100%;}
 .modal-accept:hover{background:var(--accent);border-color:var(--accent);}
-
-/* ── Own spell-underline overlay (instant, no browser lag) ──────────────── */
-.editor-wrap{position:relative;display:block;}
-#text-highlight{
-  position:absolute;top:0;left:0;right:0;bottom:0;
-  padding:20px;
-  font-size:18px;
-  font-family:'JetBrains Mono','Cairo',monospace;
-  line-height:1.6;
-  white-space:pre-wrap;word-wrap:break-word;
-  pointer-events:none;
-  color:transparent;
-  overflow:hidden;
-  box-sizing:border-box;
-  border:4px solid transparent;
-  z-index:0;
-}
-#text{position:relative;z-index:1;background:transparent;}
-.sp-err{
-  color:transparent;
-  border-bottom:2px solid #e00;
-  /* wavy via SVG background */
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='3'%3E%3Cpath d='M0 3 Q1.5 0 3 3 Q4.5 6 6 3' stroke='%23e00' stroke-width='1' fill='none'/%3E%3C/svg%3E");
-  background-repeat:repeat-x;
-  background-position:bottom;
-  background-size:6px 3px;
-}
 </style>
 </head>
 <body>
@@ -191,7 +164,7 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
     </div>
   </div>
 
-  <div class="editor-wrap"><div id="text-highlight" aria-hidden="true"></div><div id="text" contenteditable="true" spellcheck="false" dir="auto" role="textbox" aria-multiline="true" data-placeholder="Start typing... Your engine is warmed up."></div></div>
+  <div id="text" contenteditable="true" spellcheck="true" lang="en" dir="auto" role="textbox" aria-multiline="true" data-placeholder="Start typing... Your engine is warmed up."></div>
 
   <div class="buttons-grid">
     <button onclick="capitalize()" style="border-color:var(--accent)">Capitalize</button>
@@ -3218,34 +3191,24 @@ var LANG_NAMES = {
 };
 
 function onCorrectorLangChange(){
-  correctorLang = document.getElementById('corrector-lang').value;
+  correctorLang = document.getElementById('corrector-lang').value || 'en';
   var btnCorrect = document.getElementById('btn-correct');
   var btnCheck   = document.getElementById('btn-check');
   var status     = document.getElementById('corrector-status');
 
-  if(correctorLang){
-    btnCorrect.disabled = false;
-    btnCheck.disabled   = false;
-    status.className    = 'corrector-status no-fixes';
-    var n = (CORRECTIONS && CORRECTIONS[correctorLang])
-          ? Object.keys(CORRECTIONS[correctorLang]).length : 0;
-    status.textContent = 'Ready \u2014 ' + (LANG_NAMES[correctorLang]||correctorLang) +
-                         ' (' + n + ' entries loaded).';
-    /* Disable browser spellcheck — we draw our own underlines */
-    textArea.setAttribute('spellcheck','false');
-    textArea.spellcheck = false;
-    /* Immediate underline pass */
-    runSpellHighlight();
-  } else {
-    btnCorrect.disabled = true;
-    btnCheck.disabled   = true;
-    status.className    = 'corrector-status no-fixes';
-    status.textContent  = 'Select a language to enable correction.';
-    textArea.setAttribute('spellcheck','false');
-    /* Clear underlines */
-    var hl = document.getElementById('text-highlight');
-    if(hl) hl.innerHTML = '';
-  }
+  btnCorrect.disabled = false;
+  btnCheck.disabled   = false;
+  status.className    = 'corrector-status no-fixes';
+  var n = (CORRECTIONS && CORRECTIONS[correctorLang])
+        ? Object.keys(CORRECTIONS[correctorLang]).length : 0;
+  status.textContent = 'Ready \u2014 ' + (LANG_NAMES[correctorLang]||correctorLang) +
+                       ' (' + n + ' entries). Right-click red words for suggestions.';
+
+  /* Browser spellcheck: just update lang — browser re-scans automatically */
+  textArea.lang = correctorLang;
+  textArea.setAttribute('lang', correctorLang);
+  textArea.setAttribute('spellcheck', 'true');
+  textArea.spellcheck = true;
 }
 
 /* Safe regex escape */
@@ -3463,10 +3426,7 @@ document.getElementById('errorsModal').addEventListener('click', function(e){
 
 
 /* ── Init ─────────────────────────────────────────────────── */
-textArea.addEventListener('input', function(){
-  updateStats();
-  scheduleHighlight();
-});
+textArea.addEventListener('input', updateStats);
 
 /* Strip HTML on paste — keep plain text only */
 textArea.addEventListener('paste', function(e){
@@ -3482,83 +3442,15 @@ textArea.addEventListener('keydown', function(e){
     document.execCommand('insertText', false, '\n');
   }
 });
-/* ════════════════════════════════════════════════════════════════════════
-   INSTANT SPELL UNDERLINE ENGINE
-   Draws red wavy underlines from our CORRECTIONS dict in ~300ms.
-   No browser spellcheck, no lag, works offline on all 9 languages.
-   ════════════════════════════════════════════════════════════════════════ */
-
-var _spTimer = null;
-
-function htmlEscape(s){
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function buildHighlight(text, lang){
-  if(!text || !lang || !CORRECTIONS || !CORRECTIONS[lang]) return htmlEscape(text||'');
-  var dict = CORRECTIONS[lang];
-  var isLatin = ['en','fr','de','es','pt','it','tr'].indexOf(lang) !== -1;
-  var hits = [];  /* [{start, end}] */
-
-  if(isLatin){
-    /* Scan every word token */
-    var re = /[a-zA-Z\u00C0-\u024F\u0400-\u04FF]+/g, m;
-    while((m = re.exec(text)) !== null){
-      if(dict[m[0].toLowerCase()] && dict[m[0].toLowerCase()] !== m[0].toLowerCase())
-        hits.push({s: m.index, e: m.index + m[0].length});
-    }
-  } else {
-    /* Arabic / Russian: substring scan */
-    for(var key in dict){
-      if(key === dict[key]) continue;
-      var pos = 0, idx;
-      while((idx = text.indexOf(key, pos)) !== -1){
-        hits.push({s:idx, e:idx+key.length});
-        pos = idx + 1;
-      }
-    }
-    /* sort + deduplicate overlapping */
-    hits.sort(function(a,b){return a.s-b.s;});
-    var clean = [], last = -1;
-    hits.forEach(function(h){ if(h.s>=last){clean.push(h);last=h.e;} });
-    hits = clean;
-  }
-
-  if(!hits.length) return htmlEscape(text);
-
-  var out = '', cur = 0;
-  hits.forEach(function(h){
-    if(h.s > cur) out += htmlEscape(text.slice(cur, h.s));
-    out += '<mark class="sp-err">' + htmlEscape(text.slice(h.s, h.e)) + '</mark>';
-    cur = h.e;
-  });
-  if(cur < text.length) out += htmlEscape(text.slice(cur));
-  /* preserve newlines for the overlay */
-  return out.replace(/\n/g,'<br>');
-}
-
-function runSpellHighlight(){
-  var hl = document.getElementById('text-highlight');
-  if(!hl) return;
-  if(!correctorLang){ hl.innerHTML=''; return; }
-  var text = textArea.innerText || '';
-  hl.innerHTML = buildHighlight(text, correctorLang);
-}
-
-function scheduleHighlight(){
-  clearTimeout(_spTimer);
-  _spTimer = setTimeout(runSpellHighlight, 300);
-}
-
-
 window.onload = function(){
   refreshStatus();
+  /* Set English as default — browser starts spell-checking immediately */
+  document.getElementById('corrector-lang').value = 'en';
+  onCorrectorLangChange();
   try {
     var s = localStorage.getItem('te_pro_data');
     if(s){ textArea.value = s; updateStats(); }
   } catch(e){}
-  onCorrectorLangChange();
-  runSpellHighlight();
 };
 </script>
 
