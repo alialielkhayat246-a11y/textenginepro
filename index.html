@@ -67,43 +67,6 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
 .highlight-error{background:#ffe0e0;border-bottom:2px solid #ff3e00;cursor:pointer;position:relative;}
 
 
-
-/* ── Word Scanner Panel ─────────────────────────────────────────────────── */
-.ws-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:960;justify-content:center;align-items:center;padding:16px;}
-.ws-overlay.open{display:flex;}
-.ws-box{background:#fff;border:4px solid var(--primary);box-shadow:10px 10px 0 var(--primary);max-width:720px;width:100%;max-height:88vh;display:flex;flex-direction:column;}
-.ws-header{background:var(--primary);color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
-.ws-header h3{margin:0;font-size:1rem;font-family:'JetBrains Mono',monospace;font-weight:900;}
-.ws-header-close{background:none;border:2px solid #fff;color:#fff;font-weight:900;padding:4px 12px;cursor:pointer;font-size:14px;box-shadow:none;}
-.ws-header-close:hover{background:var(--accent);border-color:var(--accent);}
-.ws-toolbar{padding:10px 18px;background:#f9f9f9;border-bottom:2px solid #eee;display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-shrink:0;}
-.ws-toolbar input{flex:1;min-width:160px;padding:7px 12px;border:2px solid var(--primary);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;}
-.ws-toolbar input:focus{border-color:var(--accent);}
-.ws-filter-btns{display:flex;gap:6px;}
-.ws-filter-btn{padding:6px 14px;border:2px solid var(--primary);background:#fff;font-weight:900;font-size:12px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:.1s;}
-.ws-filter-btn.active{background:var(--primary);color:#fff;}
-.ws-filter-btn:hover:not(.active){background:#f0f0f0;}
-.ws-summary{padding:8px 18px;font-size:12px;font-family:'JetBrains Mono',monospace;color:#555;background:#f9f9f9;border-bottom:2px solid #eee;flex-shrink:0;}
-.ws-summary span{font-weight:900;}
-.ws-grid{overflow-y:auto;padding:12px 18px;flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;align-content:start;}
-.ws-word{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;border:2px solid #eee;background:#fff;font-family:'JetBrains Mono',monospace;font-size:13px;gap:6px;transition:.1s;}
-.ws-word.ok{border-color:#c3e6cb;background:#f0fff4;}
-.ws-word.err{border-color:#f5c6cb;background:#fff5f5;}
-.ws-word.err:hover{border-color:var(--accent);}
-.ws-word-text{font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ws-word.ok .ws-word-text{color:#155724;}
-.ws-word.err .ws-word-text{color:#721c24;text-decoration:line-through;}
-.ws-word-sug{font-size:11px;color:#006600;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px;}
-.ws-word-fix{padding:3px 8px;background:var(--primary);color:#fff;border:1px solid var(--primary);font-size:11px;font-weight:900;cursor:pointer;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
-.ws-word-fix:hover{background:var(--accent);border-color:var(--accent);}
-.ws-word-fix.fixed{background:#006600;border-color:#006600;pointer-events:none;}
-.ws-word-badge{font-size:10px;font-weight:900;flex-shrink:0;}
-.ws-word.ok .ws-word-badge{color:#28a745;}
-.ws-word.err .ws-word-badge{color:#dc3545;}
-.ws-footer{padding:12px 18px;border-top:2px solid #eee;display:flex;gap:10px;flex-shrink:0;background:#fff;}
-.ws-footer button{flex:1;padding:10px;font-size:13px;}
-.ws-empty{text-align:center;padding:40px;color:#888;font-family:'JetBrains Mono',monospace;font-size:13px;}
-
 /* Errors panel modal */
 .errors-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:950;justify-content:center;align-items:center;padding:16px;}
 .errors-overlay.open{display:flex;}
@@ -136,6 +99,37 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
 .modal-close:hover,.modal-close:focus{background:var(--accent);}
 .modal-accept{background:var(--primary);color:#fff;border:3px solid var(--primary);padding:12px 28px;font-weight:900;font-size:14px;cursor:pointer;display:block;width:100%;}
 .modal-accept:hover{background:var(--accent);border-color:var(--accent);}
+.ws-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:960;justify-content:center;align-items:center;padding:16px;}
+.ws-overlay.open{display:flex;}
+.ws-box{background:#fff;border:4px solid var(--primary);box-shadow:10px 10px 0 var(--primary);max-width:720px;width:100%;max-height:88vh;display:flex;flex-direction:column;}
+.ws-header{background:var(--primary);color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+.ws-header h3{margin:0;font-size:1rem;font-family:'JetBrains Mono',monospace;font-weight:900;}
+.ws-close{background:none;border:2px solid #fff;color:#fff;font-weight:900;padding:4px 12px;cursor:pointer;font-size:14px;box-shadow:none;}
+.ws-close:hover{background:var(--accent);border-color:var(--accent);}
+.ws-toolbar{padding:10px 18px;background:#f9f9f9;border-bottom:2px solid #eee;display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex-shrink:0;}
+.ws-toolbar input{flex:1;min-width:140px;padding:7px 12px;border:2px solid var(--primary);font-family:'JetBrains Mono',monospace;font-size:13px;outline:none;}
+.ws-toolbar input:focus{border-color:var(--accent);}
+.ws-fbts{display:flex;gap:6px;}
+.ws-fbt{padding:6px 14px;border:2px solid var(--primary);background:#fff;font-weight:900;font-size:12px;cursor:pointer;font-family:'JetBrains Mono',monospace;transition:.1s;}
+.ws-fbt.active{background:var(--primary);color:#fff;}
+.ws-fbt:hover:not(.active){background:#f0f0f0;}
+.ws-sum{padding:8px 18px;font-size:12px;font-family:'JetBrains Mono',monospace;color:#555;background:#f9f9f9;border-bottom:2px solid #eee;flex-shrink:0;}
+.ws-badge{padding:2px 18px 6px;font-size:11px;font-family:'JetBrains Mono',monospace;color:#888;background:#f9f9f9;flex-shrink:0;}
+.ws-grid{overflow-y:auto;padding:12px 18px;flex:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;align-content:start;}
+.ws-card{display:flex;align-items:center;padding:8px 10px;border:2px solid #eee;font-family:'JetBrains Mono',monospace;font-size:12px;gap:5px;}
+.ws-card.ok{border-color:#c3e6cb;background:#f0fff4;}
+.ws-card.err{border-color:#f5c6cb;background:#fff5f5;}
+.ws-icon{font-size:13px;flex-shrink:0;}
+.ws-wrd{font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ws-card.ok .ws-wrd{color:#155724;}
+.ws-card.err .ws-wrd{color:#721c24;text-decoration:line-through;}
+.ws-sg{font-size:11px;color:#006600;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ws-fb{padding:2px 7px;background:var(--primary);color:#fff;border:none;font-size:11px;font-weight:900;cursor:pointer;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.ws-fb:hover{background:var(--accent);}
+.ws-fb.done{background:#006600;pointer-events:none;}
+.ws-foot{padding:12px 18px;border-top:2px solid #eee;display:flex;gap:10px;flex-shrink:0;background:#fff;}
+.ws-foot button{flex:1;padding:10px;font-size:13px;}
+.ws-empty{text-align:center;padding:40px;color:#888;font-family:'JetBrains Mono',monospace;font-size:13px;}
 </style>
 </head>
 <body>
@@ -176,28 +170,24 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
   </div>
 </div>
 
-
 <!-- WORD SCANNER MODAL -->
-<div class="ws-overlay" id="wordScannerModal">
+<div class="ws-overlay" id="wsMod">
   <div class="ws-box">
-    <div class="ws-header">
-      <h3>&#x1F4CB; Word Scanner &mdash; <span id="ws-lang-label">English</span></h3>
-      <button class="ws-header-close" onclick="closeWordScanner()">&#x2715; CLOSE</button>
-    </div>
+    <div class="ws-header"><h3>&#x1F4CB; Word Scanner</h3><button class="ws-close" onclick="wsClose()">&#x2715; CLOSE</button></div>
     <div class="ws-toolbar">
-      <input id="ws-search" type="text" placeholder="&#x1F50D; Filter words..." oninput="wsFilter()" />
-      <div class="ws-filter-btns">
-        <button class="ws-filter-btn active" id="ws-btn-all"  onclick="wsSetFilter('all')">All</button>
-        <button class="ws-filter-btn"        id="ws-btn-err"  onclick="wsSetFilter('err')">&#x274C; Errors</button>
-        <button class="ws-filter-btn"        id="ws-btn-ok"   onclick="wsSetFilter('ok')">&#x2705; Correct</button>
+      <input id="ws-q" type="text" placeholder="&#x1F50D; Filter..." oninput="wsRender()"/>
+      <div class="ws-fbts">
+        <button class="ws-fbt active" id="wsf-all" onclick="wsTab('all')">All</button>
+        <button class="ws-fbt" id="wsf-err" onclick="wsTab('err')">&#x274C; Errors</button>
+        <button class="ws-fbt" id="wsf-ok"  onclick="wsTab('ok')">&#x2705; OK</button>
       </div>
     </div>
-    <div class="ws-summary" id="ws-summary">Scanning...</div>
-    <div id="ws-api-badge" style="display:none;padding:4px 18px 0;font-size:11px;font-family:'JetBrains Mono',monospace;color:#888;">&#x1F4E1; Powered by <strong>LanguageTool API</strong> &mdash; same engine as browser spellcheck</div>
-    <div class="ws-grid" id="ws-grid"></div>
-    <div class="ws-footer">
+    <div class="ws-sum"   id="ws-sum">Ready</div>
+    <div class="ws-badge" id="ws-badge"></div>
+    <div class="ws-grid"  id="ws-grid"></div>
+    <div class="ws-foot">
       <button onclick="wsFixAll()" style="background:var(--primary);color:#fff;border:3px solid var(--primary);">&#x2728; Fix All Errors</button>
-      <button onclick="closeWordScanner()" style="background:#f0f0f0;color:#555;border:3px solid #ccc;box-shadow:none;">Close</button>
+      <button onclick="wsClose()" style="background:#f0f0f0;color:#555;border:3px solid #ccc;box-shadow:none;">Close</button>
     </div>
   </div>
 </div>
@@ -2881,7 +2871,7 @@ modal.addEventListener('click', function(e){
 });
 // Close on Escape key
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape'){ closeModal(); if(typeof closeWordScanner==='function') closeWordScanner(); }
+  if(e.key === 'Escape') closeModal();
 });
 
 /* ── Language detection ──────────────────────────────────── */
@@ -3263,7 +3253,7 @@ function onCorrectorLangChange(){
   if(correctorLang){
     btnCorrect.disabled = false;
     btnCheck.disabled   = false;
-    var btnScan = document.getElementById('btn-scan'); if(btnScan) btnScan.disabled = false;
+    var bs=document.getElementById('btn-scan');if(bs)bs.disabled=false;
     status.className    = 'corrector-status no-fixes';
     var entryCount = (typeof CORRECTIONS !== 'undefined' && CORRECTIONS[correctorLang]) ? Object.keys(CORRECTIONS[correctorLang]).length : 0;
     status.textContent  = 'Ready \u2014 ' + (LANG_NAMES[correctorLang] || correctorLang) + ' (' + entryCount + ' entries loaded).';
@@ -3283,7 +3273,7 @@ function onCorrectorLangChange(){
   } else {
     btnCorrect.disabled = true;
     btnCheck.disabled   = true;
-    var btnScan = document.getElementById('btn-scan'); if(btnScan) btnScan.disabled = true;
+    var bs=document.getElementById('btn-scan');if(bs)bs.disabled=true;
     status.className    = 'corrector-status no-fixes';
     status.textContent  = 'Select a language to enable correction.';
     textArea.setAttribute('spellcheck', 'false');
@@ -3523,277 +3513,9 @@ textArea.addEventListener('keydown', function(e){
     document.execCommand('insertText', false, '\n');
   }
 });
-
-/* ════════════════════════════════════════════════════════════════════════
-   WORD SCANNER — scans every word individually, shows ✓ / ✗ with
-   correction suggestion. Filfunction openWordScanner(){
-  if(!correctorLang){ showToast('Select a language first!'); return; }
-  var t = (textArea.innerText || textArea.value || '').trim();
-  if(!t){ showToast('Type something first!'); return; }
-
-  _wsWords   = [];
-  _wsFilter  = 'all';
-  _wsSearchQ = '';
-  document.getElementById('ws-search').value = '';
-  wsSetFilter('all', true);
-
-  /* Show modal immediately with loading state */
-  document.getElementById('ws-grid').innerHTML =
-    '<div class="ws-empty" id="ws-loading">' +
-    '<div style="font-size:28px;margin-bottom:12px">\u23F3</div>' +
-    'Checking with LanguageTool<br>' +
-    '<span style="font-size:11px;color:#aaa">Same dictionary as your browser&hellip;</span>' +
-    '</div>';
-  document.getElementById('ws-summary').textContent = 'Checking spelling\u2026';
-  document.getElementById('ws-lang-label').textContent =
-    LANG_NAMES[correctorLang] || correctorLang;
-  document.getElementById('wordScannerModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-
-  /* LanguageTool language code mapping */
-  var ltLang = {
-    en:'en-US', ar:'ar', fr:'fr', de:'de-DE',
-    es:'es',    pt:'pt-PT', it:'it', tr:'tr', ru:'ru'
-  }[correctorLang] || correctorLang;
-
-  /* Call LanguageTool public API */
-  var body = 'text=' + encodeURIComponent(t) +
-             '&language=' + ltLang +
-             '&enabledOnly=false';
-
-  fetch('https://api.languagetool.org/v2/check', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: body
-  })
-  .then(function(r){
-    if(!r.ok) throw new Error('HTTP ' + r.status);
-    return r.json();
-  })
-  .then(function(data){
-    document.getElementById('ws-api-badge').style.display = 'block';
-    _wsWords = [];
-
-    /* Build word list from LanguageTool matches */
-    var matches = data.matches || [];
-    /* Also extract ALL words so we can show the correct ones too */
-    var allWords = {};
-    var tokens = t.match(/[\S]+/g) || [];
-    tokens.forEach(function(w){
-      var clean = w.replace(/[^\w\u00C0-\u024F\u0400-\u04FF\u0600-\u06FF]/gu,'');
-      if(!clean || clean.length < 2) return;
-      if(!allWords[clean.toLowerCase()])
-        allWords[clean.toLowerCase()] = {word:clean, count:0, ok:true, sug:'', offset:-1};
-      allWords[clean.toLowerCase()].count++;
-    });
-
-    /* Mark errors from API matches */
-    matches.forEach(function(m){
-      /* Only spelling errors (not grammar/style) */
-      if(m.rule && m.rule.issueType &&
-         m.rule.issueType !== 'misspelling' &&
-         m.rule.issueType !== 'typographical') return;
-
-      var word    = t.substr(m.offset, m.length);
-      var clean   = word.replace(/[^\w\u00C0-\u024F\u0400-\u04FF\u0600-\u06FF]/gu,'');
-      var lower   = clean.toLowerCase();
-      var sug     = (m.replacements && m.replacements.length > 0)
-                  ? m.replacements[0].value : '';
-
-      if(!lower) return;
-      if(!allWords[lower])
-        allWords[lower] = {word:clean||word, count:1, ok:false, sug:sug, offset:m.offset};
-      else {
-        allWords[lower].ok  = false;
-        allWords[lower].sug = allWords[lower].sug || sug;
-      }
-    });
-
-    /* Convert to array, sort errors first */
-    Object.keys(allWords).forEach(function(k){ _wsWords.push(allWords[k]); });
-    _wsWords.sort(function(a,b){
-      if(a.ok !== b.ok) return a.ok ? 1 : -1;
-      return a.word.localeCompare(b.word);
-    });
-
-    wsRender();
-  })
-  .catch(function(err){
-    /* API unavailable — fall back to local CORRECTIONS dict */
-    document.getElementById('ws-api-badge').style.display = 'none';
-    document.getElementById('ws-grid').innerHTML = '';
-    _wsWords = [];
-    var dict    = (typeof CORRECTIONS !== 'undefined' && CORRECTIONS[correctorLang]) ? CORRECTIONS[correctorLang] : {};
-    var isLatin = ['en','fr','de','es','pt','it','tr'].indexOf(correctorLang) !== -1;
-    var seen    = {}, ordered = [];
-
-    if(isLatin){
-      var toks = t.match(/[a-zA-Z\u00C0-\u024F\u0400-\u04FF]+/g) || [];
-      toks.forEach(function(w){
-        var low = w.toLowerCase();
-        if(seen[low]){ seen[low].count++; return; }
-        seen[low] = {word:w, lower:low, count:1};
-        ordered.push(low);
-      });
-    } else {
-      var toks = t.split(/[\s\u060C\u061B\u061F\.,!?]+/);
-      toks.forEach(function(w){
-        w = w.trim(); if(!w || w.length<2) return;
-        if(seen[w]){ seen[w].count++; return; }
-        seen[w] = {word:w, lower:w, count:1}; ordered.push(w);
-      });
-    }
-    ordered.forEach(function(key){
-      var e = seen[key];
-      var sug = dict[e.lower]||'';
-      _wsWords.push({word:e.word, lower:e.lower, count:e.count, ok:!sug, sug:sug});
-    });
-    _wsWords.sort(function(a,b){ return a.ok===b.ok ? a.lower.localeCompare(b.lower) : a.ok?1:-1; });
-
-    var badge = document.getElementById('ws-api-badge');
-    badge.style.display = 'block';
-    badge.innerHTML = '\u26A0\uFE0F LanguageTool unavailable &mdash; using local dictionary';
-    wsRender();
-  });
-}
-
-function wsRender(){
-  var grid    = document.getElementById('ws-grid');
-  var summary = document.getElementById('ws-summary');
-  var q       = _wsSearchQ.toLowerCase();
-
-  var visible = _wsWords.filter(function(w){
-    if(_wsFilter === 'err' && w.ok)  return false;
-    if(_wsFilter === 'ok'  && !w.ok) return false;
-    if(q && (w.word||'').toLowerCase().indexOf(q)===-1 &&
-       (w.sug||'').toLowerCase().indexOf(q)===-1) return false;
-    return true;
-  });
-
-  var totalErr = _wsWords.filter(function(w){ return !w.ok; }).length;
-  var totalOk  = _wsWords.filter(function(w){ return  w.ok; }).length;
-  summary.innerHTML =
-    'Total unique words: <span>' + _wsWords.length + '</span> &nbsp;|&nbsp; ' +
-    '<span style="color:#dc3545">\u274C ' + totalErr + ' error'+(totalErr!==1?'s':'')+'</span>' +
-    ' &nbsp;|&nbsp; ' +
-    '<span style="color:#28a745">\u2705 ' + totalOk  + ' correct</span>';
-
-  if(!visible.length){
-    grid.innerHTML = '<div class="ws-empty">' +
-      (q||_wsFilter!=='all' ? 'No words match your filter.' :
-       '\u2705 All words spelled correctly!') + '</div>';
-    return;
-  }
-
-  grid.innerHTML = '';
-  visible.forEach(function(w){
-    var card = document.createElement('div');
-    card.className = 'ws-word ' + (w.ok ? 'ok' : 'err');
-    card.id = 'ws-card-' + (w.lower||w.word||'').replace(/[^a-z0-9]/gi,'_');
-
-    var badge = document.createElement('span');
-    badge.className = 'ws-word-badge';
-    badge.textContent = w.ok ? '\u2705' : '\u274C';
-
-    var txt = document.createElement('span');
-    txt.className = 'ws-word-text';
-    var label = (w.word||'') + (w.count > 1 ? ' \u00d7'+w.count : '');
-    txt.title = label; txt.textContent = label;
-
-    card.appendChild(badge);
-    card.appendChild(txt);
-
-    if(!w.ok && w.sug){
-      var sugEl = document.createElement('span');
-      sugEl.className = 'ws-word-sug';
-      sugEl.title = '\u2192 ' + w.sug;
-      sugEl.textContent = '\u2192 ' + w.sug;
-
-      var fixBtn = document.createElement('button');
-      fixBtn.className = 'ws-word-fix';
-      fixBtn.textContent = 'Fix';
-      fixBtn.setAttribute('data-word', w.lower || w.word);
-      fixBtn.setAttribute('data-sug', w.sug);
-      fixBtn.onclick = function(){
-        var word = this.getAttribute('data-word');
-        var sug  = this.getAttribute('data-sug');
-        if(applyFix(word, sug, correctorLang)){
-          this.textContent = '\u2713'; this.classList.add('fixed');
-          var c = document.getElementById('ws-card-'+word.replace(/[^a-z0-9]/gi,'_'));
-          if(c){ c.classList.remove('err'); c.classList.add('ok'); }
-          var b = c ? c.querySelector('.ws-word-badge') : null;
-          if(b) b.textContent = '\u2705';
-          wsUpdateSummary();
-          showToast('\u2713 Fixed: '+word+' \u2192 '+sug);
-        }
-      };
-      card.appendChild(sugEl);
-      card.appendChild(fixBtn);
-    } else if(!w.ok && !w.sug){
-      /* Error but no suggestion */
-      var noSug = document.createElement('span');
-      noSug.className = 'ws-word-sug';
-      noSug.style.color = '#aaa';
-      noSug.textContent = 'no suggestion';
-      card.appendChild(noSug);
-    }
-
-    grid.appendChild(card);
-  });
-}
-
-function wsUpdateSummary(){
-  var ok  = document.querySelectorAll('#ws-grid .ws-word.ok').length;
-  var err = document.querySelectorAll('#ws-grid .ws-word.err').length;
-  var s   = document.getElementById('ws-summary');
-  s.innerHTML =
-    'Total unique words: <span>'+(ok+err)+'</span> &nbsp;|&nbsp; '+
-    '<span style="color:#dc3545">\u274C '+err+' error'+(err!==1?'s':'')+'</span>'+
-    ' &nbsp;|&nbsp; <span style="color:#28a745">\u2705 '+ok+' correct</span>';
-}
-
-function wsSetFilter(f, skipRender){
-  _wsFilter = f;
-  ['all','err','ok'].forEach(function(x){
-    document.getElementById('ws-btn-'+x).classList.toggle('active', x===f);
-  });
-  if(!skipRender) wsRender();
-}
-
-function wsFilter(){
-  _wsSearchQ = document.getElementById('ws-search').value;
-  wsRender();
-}
-
-function wsFixAll(){
-  var btns = document.querySelectorAll('.ws-word-fix:not(.fixed)');
-  var count = btns.length;
-  btns.forEach(function(b){ b.click(); });
-  if(count) showToast('\u2728 Fixed '+count+' word'+(count!==1?'s':'')+'!');
-}
-
-function closeWordScanner(){
-  document.getElementById('wordScannerModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-/* Close on backdrop click */
-document.getElementById('wordScannerModal').addEventListener('click', function(e){
-  if(e.target === this) closeWordScanner();
-});
-rModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-/* Close on backdrop click */
-document.getElementById('wordScannerModal').addEventListener('click', function(e){
-  if(e.target === this) closeWordScanner();
-});
-
-
 window.onload = function(){
   refreshStatus();
-  document.getElementById('corrector-lang').value = 'en';
+  document.getElementById('corrector-lang').value='en';
   onCorrectorLangChange();
   try {
     var s = localStorage.getItem('te_pro_data');
@@ -3814,5 +3536,145 @@ window.onload = function(){
 </div>
 
 </div><!-- end page-wrapper -->
+<script>
+/* Word Scanner — LanguageTool API + local fallback */
+var wsWords = [], wsMode = 'all';
+
+function openWordScanner() {
+  if (!correctorLang) { showToast('Select a language first!'); return; }
+  var t = (textArea.innerText || textArea.value || '').trim();
+  if (!t) { showToast('Type something first!'); return; }
+  wsWords = []; wsMode = 'all';
+  document.getElementById('ws-q').value = '';
+  wsTab('all', true);
+  document.getElementById('ws-grid').innerHTML = '<div class="ws-empty">&#x23F3; Checking with LanguageTool&#x2026;</div>';
+  document.getElementById('ws-sum').textContent  = 'Checking&#x2026;';
+  document.getElementById('ws-badge').textContent = '';
+  document.getElementById('wsMod').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  var ltMap = {en:'en-US',ar:'ar',fr:'fr',de:'de-DE',es:'es',pt:'pt-PT',it:'it',tr:'tr',ru:'ru'};
+  var ltLang = ltMap[correctorLang] || 'en-US';
+  fetch('https://api.languagetool.org/v2/check', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'text=' + encodeURIComponent(t) + '&language=' + ltLang
+  })
+  .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then(function(data) {
+    document.getElementById('ws-badge').textContent = '\uD83D\uDCE1 Powered by LanguageTool \u2014 same engine as browser spellcheck';
+    wsBuild(t, data.matches || [], true);
+  })
+  .catch(function() {
+    document.getElementById('ws-badge').textContent = '\u26A0\uFE0F Offline \u2014 using local dictionary';
+    wsBuild(t, [], false);
+  });
+}
+
+function wsBuild(t, matches, online) {
+  var map = {};
+  var toks = t.match(/[a-zA-Z\u00C0-\u024F\u0600-\u06FF\u0400-\u04FF]+/g) || [];
+  toks.forEach(function(w) {
+    var k = w.toLowerCase();
+    if (!map[k]) map[k] = {word:w, lower:k, count:0, ok:true, sug:''};
+    map[k].count++;
+  });
+  if (online) {
+    matches.forEach(function(m) {
+      if (!m.replacements || !m.replacements.length) return;
+      var w = t.substr(m.offset, m.length);
+      var k = w.toLowerCase().replace(/[^a-z\u00C0-\u024F\u0600-\u06FF\u0400-\u04FF]/gi, '');
+      if (!k) return;
+      if (!map[k]) map[k] = {word:w, lower:k, count:1, ok:false, sug:m.replacements[0].value};
+      else { map[k].ok = false; if (!map[k].sug) map[k].sug = m.replacements[0].value; }
+    });
+  } else {
+    var dict = (typeof CORRECTIONS !== 'undefined' && CORRECTIONS[correctorLang]) ? CORRECTIONS[correctorLang] : {};
+    Object.keys(map).forEach(function(k) { var s = dict[k] || ''; if (s) { map[k].ok = false; map[k].sug = s; } });
+  }
+  wsWords = Object.keys(map).map(function(k) { return map[k]; });
+  wsWords.sort(function(a, b) { return a.ok !== b.ok ? (a.ok ? 1 : -1) : a.lower.localeCompare(b.lower); });
+  wsRender();
+}
+
+function wsRender() {
+  var q = (document.getElementById('ws-q').value || '').toLowerCase();
+  var list = wsWords.filter(function(w) {
+    if (wsMode === 'err' && w.ok)  return false;
+    if (wsMode === 'ok'  && !w.ok) return false;
+    if (q && w.lower.indexOf(q) === -1 && w.sug.toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+  var errs = wsWords.filter(function(w) { return !w.ok; }).length;
+  var oks  = wsWords.filter(function(w) { return  w.ok; }).length;
+  document.getElementById('ws-sum').innerHTML =
+    'Words: <b>' + wsWords.length + '</b> &nbsp;|&nbsp; ' +
+    '<b style="color:#dc3545">&#x274C; ' + errs + '</b> error' + (errs !== 1 ? 's' : '') +
+    ' &nbsp;|&nbsp; <b style="color:#28a745">&#x2705; ' + oks + '</b> correct';
+  var grid = document.getElementById('ws-grid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="ws-empty">' + (wsWords.length ? 'No words match filter.' : '&#x2705; All words correct!') + '</div>';
+    return;
+  }
+  grid.innerHTML = '';
+  list.forEach(function(w) {
+    var card = document.createElement('div');
+    card.className = 'ws-card ' + (w.ok ? 'ok' : 'err');
+    card.id = 'wsc-' + w.lower.replace(/[^a-z0-9]/g, '_');
+    var ic = document.createElement('span'); ic.className = 'ws-icon'; ic.textContent = w.ok ? '\u2705' : '\u274C';
+    var wt = document.createElement('span'); wt.className = 'ws-wrd';
+    wt.textContent = w.word + (w.count > 1 ? ' \u00d7' + w.count : ''); wt.title = wt.textContent;
+    card.appendChild(ic); card.appendChild(wt);
+    if (!w.ok) {
+      if (w.sug) {
+        var sg = document.createElement('span'); sg.className = 'ws-sg'; sg.textContent = '\u2192 ' + w.sug; card.appendChild(sg);
+        var fb = document.createElement('button'); fb.className = 'ws-fb'; fb.textContent = 'Fix';
+        fb.setAttribute('data-w', w.lower); fb.setAttribute('data-s', w.sug);
+        fb.onclick = function() {
+          var dw = this.getAttribute('data-w'), ds = this.getAttribute('data-s');
+          if (applyFix(dw, ds, correctorLang)) {
+            this.textContent = '\u2713'; this.classList.add('done');
+            var c = document.getElementById('wsc-' + dw.replace(/[^a-z0-9]/g, '_'));
+            if (c) { c.className = 'ws-card ok'; c.querySelector('.ws-icon').textContent = '\u2705'; }
+            showToast('\u2713 ' + dw + ' \u2192 ' + ds);
+            wsUpdSum();
+          }
+        };
+        card.appendChild(fb);
+      } else {
+        var ns = document.createElement('span'); ns.className = 'ws-sg'; ns.style.color = '#aaa'; ns.textContent = 'no suggestion'; card.appendChild(ns);
+      }
+    }
+    grid.appendChild(card);
+  });
+}
+
+function wsUpdSum() {
+  var ok = document.querySelectorAll('#ws-grid .ws-card.ok').length;
+  var er = document.querySelectorAll('#ws-grid .ws-card.err').length;
+  document.getElementById('ws-sum').innerHTML =
+    'Words: <b>' + (ok+er) + '</b> &nbsp;|&nbsp; <b style="color:#dc3545">&#x274C; ' + er + '</b> error' + (er!==1?'s':'') +
+    ' &nbsp;|&nbsp; <b style="color:#28a745">&#x2705; ' + ok + '</b> correct';
+}
+
+function wsTab(t, noRender) {
+  wsMode = t;
+  ['all','err','ok'].forEach(function(x) { document.getElementById('wsf-' + x).classList.toggle('active', x === t); });
+  if (!noRender) wsRender();
+}
+
+function wsFixAll() {
+  var btns = document.querySelectorAll('.ws-fb:not(.done)');
+  btns.forEach(function(b) { b.click(); });
+  if (btns.length) showToast('\u2728 Fixed ' + btns.length + ' word' + (btns.length !== 1 ? 's' : '') + '!');
+}
+
+function wsClose() {
+  document.getElementById('wsMod').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('wsMod').addEventListener('click', function(e) { if (e.target === this) wsClose(); });
+</script>
+
 </body>
 </html>
