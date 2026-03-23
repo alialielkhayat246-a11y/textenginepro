@@ -4142,12 +4142,14 @@ var _hoverActive = false;
     panel.style.display = 'block';
     var pw = panel.offsetWidth  || 210;
     var ph = panel.offsetHeight || 95;
-    var mx = e.clientX + window.scrollX;
-    var my = e.clientY + window.scrollY;
-    var left = mx + 14;
-    var top  = my + 20;
-    if(left + pw > window.scrollX + window.innerWidth  - 8) left = mx - pw - 14;
-    if(top  + ph > window.scrollY + window.innerHeight - 8) top  = my - ph - 10;
+
+    // panel is position:fixed — use viewport coords (clientX/Y), NO scrollX/Y
+    var left = e.clientX + 14;
+    var top  = e.clientY + 20;
+
+    if(left + pw > window.innerWidth  - 8) left = e.clientX - pw - 14;
+    if(top  + ph > window.innerHeight - 8) top  = e.clientY - ph - 10;
+
     panel.style.left = left + 'px';
     panel.style.top  = top  + 'px';
   }
