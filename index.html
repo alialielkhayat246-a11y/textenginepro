@@ -31,7 +31,7 @@ h1{font-weight:900;font-size:1.8rem;margin:0;text-transform:uppercase;letter-spa
 @keyframes pulse{0%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.2);}100%{opacity:1;transform:scale(1);}}
 textarea{width:100%;min-height:250px;padding:20px;font-size:18px;border:4px solid var(--primary);font-family:'JetBrains Mono','Cairo',monospace;line-height:1.6;outline:none;resize:vertical;display:block;background:#fff;}
 /* Contenteditable editor */
-#text{width:100%;min-height:250px;padding:20px;font-size:18px;border:4px solid var(--primary);font-family:'JetBrains Mono','Cairo',monospace;line-height:1.6;outline:none;background:#fff;display:block;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-y:auto;max-height:600px;cursor:text;}
+#text{width:100%;min-height:250px;padding:20px;font-size:18px;border:4px solid var(--primary);font-family:'JetBrains Mono','Cairo',monospace;line-height:1.6;outline:none;background:#fff;display:block;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-y:auto;max-height:none;cursor:text;resize:vertical;overscroll-behavior:contain;}
 #text:empty:before{content:attr(data-placeholder);color:#aaa;pointer-events:none;}
 .buttons-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:15px;}
 button{padding:14px;border:3px solid var(--primary);background:#fff;font-weight:900;font-size:13px;cursor:pointer;transition:.1s;box-shadow:4px 4px 0 var(--primary);}
