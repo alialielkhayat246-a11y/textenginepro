@@ -151,7 +151,7 @@ function detect(text) {
   return 'eng';
 }
 
-export default function handler(req, res) {
+module.exports = function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -160,7 +160,14 @@ export default function handler(req, res) {
   if (req.method !== 'POST')    return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { text } = req.body || {};
+    // Vercel auto-parses JSON body, but handle raw string just in case
+    let body = req.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch(e) { body = {}; }
+    }
+    body = body || {};
+
+    const text = body.text;
     if (!text || typeof text !== 'string' || text.trim().length < 3) {
       return res.status(400).json({ error: 'Text too short' });
     }
