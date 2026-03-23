@@ -3763,6 +3763,8 @@ textArea.addEventListener('input', autoScanOnIdle);
 function afterScan(skipHighlight){
   var errs = wsWords.filter(function(w){ return !w.ok && w.sug; });
   updateStatusFromWs();
+  // Don't redraw highlights or panel while user is hovering over a word
+  if(_hoverActive) return;
   if(!skipHighlight) highlightErrors(errs);
   openErrorsPanel(errs);
 }
@@ -4084,68 +4086,75 @@ document.getElementById('wsMod').addEventListener('click', function(e) { if (e.t
 </div>
 
 <script>
+var _hoverActive = false;
+
 (function(){
-  var panel     = document.getElementById('hover-panel');
-  var hpWrong   = document.getElementById('hp-wrong');
-  var hpSug     = document.getElementById('hp-sug');
-  var hpFix     = document.getElementById('hp-fix');
-  var hpCopy    = document.getElementById('hp-copy');
-  var hideTimer = null;
+  var panel      = document.getElementById('hover-panel');
+  var hpWrong    = document.getElementById('hp-wrong');
+  var hpSug      = document.getElementById('hp-sug');
+  var hpFix      = document.getElementById('hp-fix');
+  var hpCopy     = document.getElementById('hp-copy');
+  var hideTimer  = null;
   var activeSpan = null;
 
   function showPanel(span, e){
     clearTimeout(hideTimer);
-    activeSpan = span;
-    var wrong = span.getAttribute('data-wrong');
-    var sug   = span.getAttribute('data-sug');
-    hpWrong.textContent = wrong + ' \u2717';
-    hpSug.textContent   = '\u2192 ' + sug;
+    _hoverActive = true;
+    activeSpan   = span;
+
+    hpWrong.textContent = span.getAttribute('data-wrong') + ' \u2717';
+    hpSug.textContent   = '\u2192 ' + span.getAttribute('data-sug');
 
     panel.style.display = 'block';
-    var pw = panel.offsetWidth  || 200;
-    var ph = panel.offsetHeight || 90;
-
+    var pw = panel.offsetWidth  || 210;
+    var ph = panel.offsetHeight || 95;
     var mx = e.clientX + window.scrollX;
     var my = e.clientY + window.scrollY;
-
     var left = mx + 14;
     var top  = my + 20;
-
-    if(left + pw > window.scrollX + window.innerWidth  - 10) left = mx - pw - 14;
-    if(top  + ph > window.scrollY + window.innerHeight - 10) top  = my - ph - 10;
-
+    if(left + pw > window.scrollX + window.innerWidth  - 8) left = mx - pw - 14;
+    if(top  + ph > window.scrollY + window.innerHeight - 8) top  = my - ph - 10;
     panel.style.left = left + 'px';
     panel.style.top  = top  + 'px';
   }
 
   function hidePanel(){
-    hideTimer = setTimeout(function(){ panel.style.display='none'; activeSpan=null; }, 300);
+    hideTimer = setTimeout(function(){
+      panel.style.display = 'none';
+      activeSpan  = null;
+      _hoverActive = false;
+    }, 300);
   }
 
-  // Show on mouseover of any .highlight-error span
+  /* Event delegation on the text editor */
   document.getElementById('text').addEventListener('mouseover', function(e){
-    var span = e.target.closest ? e.target.closest('.highlight-error') : null;
-    if(!span && e.target.classList && e.target.classList.contains('highlight-error')) span = e.target;
+    var t = e.target;
+    var span = (t.classList && t.classList.contains('highlight-error')) ? t
+             : (t.closest ? t.closest('.highlight-error') : null);
     if(span) showPanel(span, e);
   });
+
   document.getElementById('text').addEventListener('mouseout', function(e){
-    var span = e.target.closest ? e.target.closest('.highlight-error') : null;
-    if(!span && e.target.classList && e.target.classList.contains('highlight-error')) span = e.target;
+    var t = e.target;
+    var span = (t.classList && t.classList.contains('highlight-error')) ? t
+             : (t.closest ? t.closest('.highlight-error') : null);
     if(span) hidePanel();
   });
 
-  // Keep panel open when hovering over it
-  panel.addEventListener('mouseenter', function(){ clearTimeout(hideTimer); });
+  /* Keep panel alive while mouse is over it */
+  panel.addEventListener('mouseenter', function(){ clearTimeout(hideTimer); _hoverActive = true; });
   panel.addEventListener('mouseleave', hidePanel);
 
-  // Fix button
+  /* Fix button */
   hpFix.addEventListener('click', function(e){
     e.stopPropagation();
     if(!activeSpan) return;
     var wrong = activeSpan.getAttribute('data-wrong');
     var sug   = activeSpan.getAttribute('data-sug');
-    panel.style.display = 'none';
+    activeSpan   = null;
+    _hoverActive = false;
     clearTimeout(hideTimer);
+    panel.style.display = 'none';
     clearHighlights();
     applyFix(wrong, sug, correctorLang);
     wsWords.forEach(function(w){ if(w.lower === wrong) w.ok = true; });
@@ -4153,24 +4162,29 @@ document.getElementById('wsMod').addEventListener('click', function(e) { if (e.t
     if(stillBad.length) highlightErrors(stillBad);
     openErrorsPanel(stillBad);
     showToast('\u2713 ' + wrong + ' \u2192 ' + sug);
-    activeSpan = null;
   });
 
-  // Copy button
+  /* Copy button */
   hpCopy.addEventListener('click', function(e){
     e.stopPropagation();
     if(!activeSpan) return;
     var sug = activeSpan.getAttribute('data-sug');
+    activeSpan   = null;
+    _hoverActive = false;
+    clearTimeout(hideTimer);
+    panel.style.display = 'none';
     if(navigator.clipboard && navigator.clipboard.writeText){
       navigator.clipboard.writeText(sug).then(function(){ showToast('Copied: ' + sug + ' \u2705'); });
     } else {
       showToast('Copied: ' + sug + ' \u2705');
     }
-    panel.style.display = 'none';
-    clearTimeout(hideTimer);
   });
 
-  document.addEventListener('scroll', function(){ panel.style.display = 'none'; activeSpan = null; }, true);
+  document.addEventListener('scroll', function(){
+    panel.style.display = 'none';
+    activeSpan   = null;
+    _hoverActive = false;
+  }, true);
 })();
 </script>
 
