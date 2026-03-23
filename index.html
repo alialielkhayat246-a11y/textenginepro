@@ -4098,43 +4098,35 @@ document.getElementById('wsMod').addEventListener('click', function(e) { if (e.t
     activeSpan = span;
     var wrong = span.getAttribute('data-wrong');
     var sug   = span.getAttribute('data-sug');
-    hpWrong.textContent = wrong + ' ✗';
-    hpSug.textContent   = '→ ' + sug;
+    hpWrong.textContent = wrong + ' \u2717';
+    hpSug.textContent   = '\u2192 ' + sug;
 
     panel.style.display = 'block';
     var pw = panel.offsetWidth  || 200;
     var ph = panel.offsetHeight || 90;
 
-    // Use actual mouse position — much more accurate than getBoundingClientRect
     var mx = e.clientX + window.scrollX;
     var my = e.clientY + window.scrollY;
 
-    var left = mx + 12;
-    var top  = my + 18;
+    var left = mx + 14;
+    var top  = my + 20;
 
-    // Keep inside viewport
-    if(left + pw > window.scrollX + window.innerWidth  - 10) left = mx - pw - 12;
-    if(top  + ph > window.scrollY + window.innerHeight - 10) top  = my - ph - 8;
+    if(left + pw > window.scrollX + window.innerWidth  - 10) left = mx - pw - 14;
+    if(top  + ph > window.scrollY + window.innerHeight - 10) top  = my - ph - 10;
 
     panel.style.left = left + 'px';
     panel.style.top  = top  + 'px';
   }
 
   function hidePanel(){
-    hideTimer = setTimeout(function(){ panel.style.display='none'; activeSpan=null; }, 180);
+    hideTimer = setTimeout(function(){ panel.style.display='none'; activeSpan=null; }, 300);
   }
 
-  // Show on mouseenter of any .highlight-error span (event delegation on textArea)
+  // Show on mouseover of any .highlight-error span
   document.getElementById('text').addEventListener('mouseover', function(e){
     var span = e.target.closest ? e.target.closest('.highlight-error') : null;
     if(!span && e.target.classList && e.target.classList.contains('highlight-error')) span = e.target;
     if(span) showPanel(span, e);
-  });
-  document.getElementById('text').addEventListener('mousemove', function(e){
-    if(!activeSpan) return;
-    var span = e.target.closest ? e.target.closest('.highlight-error') : null;
-    if(!span && e.target.classList && e.target.classList.contains('highlight-error')) span = e.target;
-    if(span && panel.style.display === 'block') showPanel(span, e);
   });
   document.getElementById('text').addEventListener('mouseout', function(e){
     var span = e.target.closest ? e.target.closest('.highlight-error') : null;
@@ -4147,40 +4139,45 @@ document.getElementById('wsMod').addEventListener('click', function(e) { if (e.t
   panel.addEventListener('mouseleave', hidePanel);
 
   // Fix button
-  hpFix.addEventListener('click', function(){
+  hpFix.addEventListener('click', function(e){
+    e.stopPropagation();
     if(!activeSpan) return;
     var wrong = activeSpan.getAttribute('data-wrong');
     var sug   = activeSpan.getAttribute('data-sug');
     panel.style.display = 'none';
+    clearTimeout(hideTimer);
     clearHighlights();
     applyFix(wrong, sug, correctorLang);
-    // Mark fixed in wsWords and re-highlight remaining
     wsWords.forEach(function(w){ if(w.lower === wrong) w.ok = true; });
     var stillBad = wsWords.filter(function(w){ return !w.ok && w.sug; });
     if(stillBad.length) highlightErrors(stillBad);
-    // Refresh panel list
     openErrorsPanel(stillBad);
-    showToast('✓ ' + wrong + ' → ' + sug);
+    showToast('\u2713 ' + wrong + ' \u2192 ' + sug);
     activeSpan = null;
   });
 
   // Copy button
-  hpCopy.addEventListener('click', function(){
+  hpCopy.addEventListener('click', function(e){
+    e.stopPropagation();
     if(!activeSpan) return;
     var sug = activeSpan.getAttribute('data-sug');
     if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(sug).then(function(){ showToast('Copied: ' + sug + ' ✅'); });
+      navigator.clipboard.writeText(sug).then(function(){ showToast('Copied: ' + sug + ' \u2705'); });
     } else {
-      showToast('Copied: ' + sug + ' ✅');
+      showToast('Copied: ' + sug + ' \u2705');
     }
     panel.style.display = 'none';
+    clearTimeout(hideTimer);
   });
 
-  // Hide panel on scroll or click elsewhere
+  // Hide only when clicking outside both panel and text editor
   document.addEventListener('click', function(e){
-    if(!panel.contains(e.target)) panel.style.display = 'none';
+    if(!panel.contains(e.target) && e.target.closest && !e.target.closest('#text')) {
+      panel.style.display = 'none';
+      activeSpan = null;
+    }
   });
-  document.addEventListener('scroll', function(){ panel.style.display = 'none'; }, true);
+  document.addEventListener('scroll', function(){ panel.style.display = 'none'; activeSpan = null; }, true);
 })();
 </script>
 
