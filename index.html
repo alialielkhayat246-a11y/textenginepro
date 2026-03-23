@@ -108,7 +108,7 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
 .ep-arrow{color:#aaa;font-size:15px;text-align:center;}
 .ep-right{font-family:'JetBrains Mono',monospace;font-weight:700;color:#006600;font-size:13px;word-break:break-all;}
 .ep-fix-btn{padding:4px 12px;background:var(--primary);color:#fff;border:2px solid var(--primary);font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap;box-shadow:2px 2px 0 #555;}
-.ep-fix-btn:hover{background:var(--accent);border-color:var(--accent);}
+.ep-fix-btn:hover{background:#006600;border-color:#006600;color:#fff;}
 .ep-fix-btn.done{background:#006600;border-color:#006600;pointer-events:none;}
 .ep-footer{padding:10px 14px;border-top:2px solid #eee;display:flex;gap:8px;background:#f9f9f9;}
 .ep-footer button{flex:1;padding:9px;font-size:13px;}
@@ -245,7 +245,7 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
     <button onclick="removeSpaces()">Clean Space</button>
     <button onclick="copyText()">Copy &#x2705;</button>
     <button onclick="clearText()" style="color:red">Clear</button>
-    <button onclick="convertLayout('arToEn')">AR &#x27A1; EN</button>
+    <button id="btn-exclude-grammar" onclick="toggleExcludeGrammar()" title="Exclude grammar suggestions, show spelling errors only">&#x1F6AB; Exclude Grammar</button>
     <div class="font-dropdown-wrap">
       <select id="font-picker" onchange="applyFont(this.value)" title="Font Style">
         <option value="">🔤 Font Style</option>
@@ -344,6 +344,20 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
     <div class="ep-footer">
       <button onclick="epFixAll()" style="background:var(--primary);color:#fff;border:3px solid var(--primary);">&#x2728; Fix All</button>
       <button onclick="closeErrorsPanel()" style="background:#f0f0f0;color:#555;border:3px solid #ccc;box-shadow:none;">Close</button>
+    </div>
+  </div>
+
+  <!-- EXCLUDED GRAMMAR PANEL -->
+  <div id="grammar-panel" style="display:none;margin-top:10px;border:3px solid var(--primary);box-shadow:4px 4px 0 var(--primary);background:#fff;">
+    <div class="ep-header" style="background:#444;">
+      <h3>&#x1F4AC; Excluded Grammar Suggestions</h3>
+      <span class="ep-summary" id="gp-summary"></span>
+      <button class="ep-close" onclick="toggleExcludeGrammar()">&#x2715; RESTORE</button>
+    </div>
+    <div class="ep-list" id="gp-list"></div>
+    <div class="ep-footer">
+      <button onclick="gpFixAll()" style="background:#444;color:#fff;border:3px solid #444;">&#x2728; Fix All Grammar</button>
+      <button onclick="toggleExcludeGrammar()" style="background:#f0f0f0;color:#555;border:3px solid #ccc;box-shadow:none;">&#x21BA; Restore</button>
     </div>
   </div>
 
@@ -3876,7 +3890,7 @@ function wsBuild(t, matches, online) {
   var toks = t.match(/[a-zA-Z\u00C0-\u024F\u0600-\u06FF\u0400-\u04FF]+/g) || [];
   toks.forEach(function(w) {
     var k = w.toLowerCase();
-    if (!map[k]) map[k] = {word:w, lower:k, count:0, ok:true, sug:''};
+    if (!map[k]) map[k] = {word:w, lower:k, count:0, ok:true, sug:'', isGrammar:false};
     map[k].count++;
   });
   if (online) {
@@ -3885,18 +3899,98 @@ function wsBuild(t, matches, online) {
       var w = t.substr(m.offset, m.length);
       var k = w.toLowerCase().replace(/[^a-z\u00C0-\u024F\u0600-\u06FF\u0400-\u04FF]/gi, '');
       if (!k) return;
-      if (!map[k]) map[k] = {word:w, lower:k, count:1, ok:false, sug:m.replacements[0].value};
-      else { map[k].ok = false; if (!map[k].sug) map[k].sug = m.replacements[0].value; }
+      // Spelling errors have ruleId containing MORFOLOGIK, HUNSPELL, SPELLING or no ruleId category
+      var ruleId = (m.rule && m.rule.id) ? m.rule.id : '';
+      var cat    = (m.rule && m.rule.category && m.rule.category.id) ? m.rule.category.id : '';
+      var isGrammar = !/MORFOLOGIK|HUNSPELL|SPELLING/i.test(ruleId) && !/TYPOS/i.test(cat);
+      if (!map[k]) map[k] = {word:w, lower:k, count:1, ok:false, sug:m.replacements[0].value, isGrammar:isGrammar};
+      else { map[k].ok = false; if (!map[k].sug){ map[k].sug = m.replacements[0].value; map[k].isGrammar = isGrammar; } }
     });
   } else {
     var dict = (typeof CORRECTIONS !== 'undefined' && CORRECTIONS[correctorLang]) ? CORRECTIONS[correctorLang] : {};
-    Object.keys(map).forEach(function(k) { var s = dict[k] || ''; if (s) { map[k].ok = false; map[k].sug = s; } });
+    Object.keys(map).forEach(function(k) { var s = dict[k] || ''; if (s) { map[k].ok = false; map[k].sug = s; map[k].isGrammar = false; } });
   }
   wsWords = Object.keys(map).map(function(k) { return map[k]; });
   wsWords.sort(function(a, b) { return a.ok !== b.ok ? (a.ok ? 1 : -1) : a.lower.localeCompare(b.lower); });
-  // Only render the word scanner UI if the modal is actually open
   var mod = document.getElementById('wsMod');
   if (mod && mod.classList.contains('open')) wsRender();
+}
+
+/* ── Exclude Grammar toggle ─────────────────────────────────── */
+var _grammarExcluded = false;
+var _grammarWords    = []; // holds grammar-only errors when excluded
+
+function toggleExcludeGrammar(){
+  _grammarExcluded = !_grammarExcluded;
+  var btn    = document.getElementById('btn-exclude-grammar');
+  var gPanel = document.getElementById('grammar-panel');
+
+  if(_grammarExcluded){
+    // Split wsWords into spelling-only and grammar-only
+    _grammarWords = wsWords.filter(function(w){ return !w.ok && w.sug && w.isGrammar; });
+    // Mark grammar errors as "ok" so they disappear from spelling panel
+    wsWords.forEach(function(w){ if(w.isGrammar) w.ok = true; });
+
+    // Show grammar panel
+    var gpList    = document.getElementById('gp-list');
+    var gpSummary = document.getElementById('gp-summary');
+    gpList.innerHTML = '';
+    if(!_grammarWords.length){
+      gpList.innerHTML = '<div class="ep-empty">✅ No grammar suggestions found.</div>';
+      gpSummary.textContent = '';
+    } else {
+      gpSummary.textContent = _grammarWords.length + ' grammar suggestion' + (_grammarWords.length !== 1 ? 's' : '');
+      _grammarWords.forEach(function(e, idx){
+        var item = document.createElement('div');
+        item.className = 'ep-item'; item.id = 'gp-item-' + idx;
+        var wEl = document.createElement('span'); wEl.className = 'ep-wrong'; wEl.textContent = e.word + (e.count > 1 ? ' ×' + e.count : '');
+        var aEl = document.createElement('span'); aEl.className = 'ep-arrow'; aEl.textContent = '→';
+        var sEl = document.createElement('span'); sEl.className = 'ep-right'; sEl.textContent = e.sug;
+        var fBtn = document.createElement('button'); fBtn.className = 'ep-fix-btn'; fBtn.textContent = 'Fix';
+        fBtn.setAttribute('data-lower', e.lower); fBtn.setAttribute('data-sug', e.sug); fBtn.setAttribute('data-idx', idx);
+        fBtn.onclick = function(){
+          var lower = this.getAttribute('data-lower'), sug = this.getAttribute('data-sug'), i = parseInt(this.getAttribute('data-idx'));
+          clearHighlights();
+          if(applyFix(lower, sug, correctorLang)){
+            this.textContent = '✓ Fixed'; this.classList.add('done');
+            var itm = document.getElementById('gp-item-' + i); if(itm) itm.classList.add('ep-fixed');
+            wsWords.forEach(function(w){ if(w.lower === lower) w.ok = true; });
+          }
+        };
+        item.appendChild(wEl); item.appendChild(aEl); item.appendChild(sEl); item.appendChild(fBtn);
+        gpList.appendChild(item);
+      });
+    }
+    gPanel.style.display = 'block';
+    btn.style.background = '#444';
+    btn.style.color      = '#fff';
+
+    // Re-run highlights + spelling panel without grammar errors
+    var spellingErrs = wsWords.filter(function(w){ return !w.ok && w.sug; });
+    highlightErrors(spellingErrs);
+    openErrorsPanel(spellingErrs);
+
+  } else {
+    // Restore — put grammar words back into wsWords as errors
+    wsWords.forEach(function(w){
+      _grammarWords.forEach(function(g){ if(g.lower === w.lower){ w.ok = false; } });
+    });
+    _grammarWords = [];
+    gPanel.style.display = 'none';
+    btn.style.background = '';
+    btn.style.color      = '';
+
+    // Re-highlight everything
+    var allErrs = wsWords.filter(function(w){ return !w.ok && w.sug; });
+    highlightErrors(allErrs);
+    openErrorsPanel(allErrs);
+  }
+}
+
+function gpFixAll(){
+  var btns = document.querySelectorAll('#gp-list .ep-fix-btn:not(.done)');
+  btns.forEach(function(b){ b.click(); });
+  if(btns.length) showToast('✨ Fixed ' + btns.length + ' grammar suggestion' + (btns.length !== 1 ? 's' : '') + '!');
 }
 
 function wsRender() {
@@ -4007,19 +4101,23 @@ document.getElementById('wsMod').addEventListener('click', function(e) { if (e.t
     hpWrong.textContent = wrong + ' ✗';
     hpSug.textContent   = '→ ' + sug;
 
-    // Position near the span
-    var rect = span.getBoundingClientRect();
-    var pw = 200;
-    var left = rect.left + window.scrollX;
-    var top  = rect.bottom + window.scrollY + 6;
+    panel.style.display = 'block';
+    var pw = panel.offsetWidth  || 200;
+    var ph = panel.offsetHeight || 90;
+
+    // Use actual mouse position — much more accurate than getBoundingClientRect
+    var mx = e.clientX + window.scrollX;
+    var my = e.clientY + window.scrollY;
+
+    var left = mx + 12;
+    var top  = my + 18;
 
     // Keep inside viewport
-    if(left + pw > window.innerWidth - 10) left = window.innerWidth - pw - 10;
-    if(top + 100 > window.innerHeight + window.scrollY) top = rect.top + window.scrollY - 106;
+    if(left + pw > window.scrollX + window.innerWidth  - 10) left = mx - pw - 12;
+    if(top  + ph > window.scrollY + window.innerHeight - 10) top  = my - ph - 8;
 
-    panel.style.left    = left + 'px';
-    panel.style.top     = top  + 'px';
-    panel.style.display = 'block';
+    panel.style.left = left + 'px';
+    panel.style.top  = top  + 'px';
   }
 
   function hidePanel(){
@@ -4031,6 +4129,12 @@ document.getElementById('wsMod').addEventListener('click', function(e) { if (e.t
     var span = e.target.closest ? e.target.closest('.highlight-error') : null;
     if(!span && e.target.classList && e.target.classList.contains('highlight-error')) span = e.target;
     if(span) showPanel(span, e);
+  });
+  document.getElementById('text').addEventListener('mousemove', function(e){
+    if(!activeSpan) return;
+    var span = e.target.closest ? e.target.closest('.highlight-error') : null;
+    if(!span && e.target.classList && e.target.classList.contains('highlight-error')) span = e.target;
+    if(span && panel.style.display === 'block') showPanel(span, e);
   });
   document.getElementById('text').addEventListener('mouseout', function(e){
     var span = e.target.closest ? e.target.closest('.highlight-error') : null;
