@@ -3558,48 +3558,82 @@ function highlightErrors(errs){
   clearHighlights();
   if(!errs.length) return;
 
-  // Get plain text, escape HTML entities for safe innerHTML building
-  var plain = (textArea.innerText || '').replace(/\u00A0/g, ' ');
+  var plain = (textArea.innerText || '').replace(/\u00A0/g,' ');
+  if(!plain.trim()) return;
 
   function escHtml(s){
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
   function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
-  // Sort errors longest-first so longer words are matched before substrings
-  var sorted = errs.slice().sort(function(a,b){ return b.lower.length - a.lower.length; });
-
-  // Build regex that matches all error words in one pass
-  var alts = sorted.map(function(e){ return escRe(e.lower); }).join('|');
-  var isLatin = ['en','fr','de','es','pt','it','tr'].indexOf(correctorLang) !== -1;
-
-  var re;
-  if(isLatin){
-    re = new RegExp('(?<![\\w\\u00C0-\\u024F])(' + alts + ')(?![\\w\\u00C0-\\u024F])', 'gi');
-  } else {
-    // For Arabic/Russian: simple word boundary via surrounding non-word chars or start/end
-    re = new RegExp('(^|[\\s\\.,!\\?;:\'"\\(\\)\\[\\]{}<>\\u060C\\u061B\\u061F])(' + alts + ')([\\s\\.,!\\?;:\'"\\(\\)\\[\\]{}<>\\u060C\\u061B\\u061F]|$)', 'gi');
-  }
-
+  // Build a map lower→sug
   var errMap = {};
-  sorted.forEach(function(e){ errMap[e.lower] = e.sug; });
+  errs.forEach(function(e){ errMap[e.lower] = e.sug; });
 
-  var result;
-  if(isLatin){
-    result = escHtml(plain).replace(re, function(match){
-      var sug = errMap[match.toLowerCase()] || '';
-      return '<span class="highlight-error" data-wrong="' + match.toLowerCase() + '" data-sug="' + escHtml(sug) + '">' + escHtml(match) + '</span>';
-    });
-  } else {
-    result = escHtml(plain).replace(re, function(full, pre, match, post){
-      var sug = errMap[match.toLowerCase()] || '';
-      return escHtml(pre) + '<span class="highlight-error" data-wrong="' + match.toLowerCase() + '" data-sug="' + escHtml(sug) + '">' + escHtml(match) + '</span>' + escHtml(post);
-    });
+  // Sort longest first to avoid partial matches
+  var sorted = errs.slice().sort(function(a,b){ return b.lower.length - a.lower.length; });
+  var alts = sorted.map(function(e){ return escRe(e.lower); }).join('|');
+
+  // Match on plain text (not escaped) using simple word boundary
+  var re = new RegExp('(^|[^\\w\\u00C0-\\u024F\\u0600-\\u06FF\\u0400-\\u04FF])(' + alts + ')(?=[^\\w\\u00C0-\\u024F\\u0600-\\u06FF\\u0400-\\u04FF]|$)', 'gi');
+
+  // Collect all match positions in plain text
+  var matches = [];
+  var m;
+  re.lastIndex = 0;
+  while((m = re.exec(plain)) !== null){
+    var pre   = m[1];
+    var word  = m[2];
+    var start = m.index + pre.length;
+    var end   = start + word.length;
+    var lower = word.toLowerCase();
+    var sug   = errMap[lower] || '';
+    if(sug) matches.push({start:start, end:end, word:word, lower:lower, sug:sug});
+    re.lastIndex = m.index + pre.length + 1; // allow overlapping scan
   }
+
+  if(!matches.length){
+    // Fallback: no word boundary required — straight substring match
+    sorted.forEach(function(e){
+      var idx = plain.toLowerCase().indexOf(e.lower);
+      while(idx !== -1){
+        matches.push({start:idx, end:idx+e.lower.length, word:plain.substr(idx,e.lower.length), lower:e.lower, sug:e.sug});
+        idx = plain.toLowerCase().indexOf(e.lower, idx+1);
+      }
+    });
+    // Remove duplicates/overlaps
+    matches.sort(function(a,b){ return a.start - b.start; });
+    var deduped = [];
+    matches.forEach(function(m){
+      if(!deduped.length || m.start >= deduped[deduped.length-1].end) deduped.push(m);
+    });
+    matches = deduped;
+  } else {
+    // Sort by position and remove overlaps
+    matches.sort(function(a,b){ return a.start - b.start; });
+    var clean = [];
+    matches.forEach(function(m){
+      if(!clean.length || m.start >= clean[clean.length-1].end) clean.push(m);
+    });
+    matches = clean;
+  }
+
+  // Build HTML by walking through plain text
+  var html = '';
+  var cursor = 0;
+  matches.forEach(function(m){
+    // Text before this match
+    if(m.start > cursor) html += escHtml(plain.slice(cursor, m.start));
+    // The span
+    html += '<span class="highlight-error" data-wrong="' + escHtml(m.lower) + '" data-sug="' + escHtml(m.sug) + '">' + escHtml(m.word) + '</span>';
+    cursor = m.end;
+  });
+  // Remaining text
+  if(cursor < plain.length) html += escHtml(plain.slice(cursor));
 
   // Restore line breaks
-  result = result.replace(/\n/g, '<br>');
-  textArea.innerHTML = result;
+  html = html.replace(/\n/g,'<br>');
+  textArea.innerHTML = html;
 }
 
 /* Remove all yellow highlights cleanly */
