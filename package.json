@@ -1,5 +1,8 @@
 {
   "name": "text-engine-pro",
   "version": "1.0.0",
-  "description": "Text Engine Pro — Language Detection API"
+  "description": "Text Engine Pro — Language Detection API",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
 }
