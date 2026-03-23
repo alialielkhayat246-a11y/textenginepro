@@ -79,7 +79,16 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
 .corrector-status{font-family:'JetBrains Mono',monospace;font-size:12px;color:#555;padding:0 14px 10px;background:#f9f9f9;min-height:22px;}
 .corrector-status.has-fixes{color:#008000;font-weight:700;}
 .corrector-status.no-fixes{color:#888;}
-.highlight-error{background:#FFE600;border-bottom:2px solid #FF3E00;cursor:pointer;position:relative;border-radius:2px;}
+.highlight-error{background:#FFE600;border-bottom:2px solid #FF3E00;cursor:text;position:relative;border-radius:2px;}
+
+/* Hover correction panel */
+#hover-panel{display:none;position:fixed;z-index:9999;background:#000;border:2px solid #FF3E00;box-shadow:4px 4px 0 rgba(0,0,0,.4);padding:0;min-width:180px;pointer-events:auto;}
+#hover-panel .hp-word{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#FFE600;padding:8px 12px 6px;border-bottom:1px solid #222;white-space:nowrap;}
+#hover-panel .hp-sug{font-family:'JetBrains Mono',monospace;font-size:13px;color:#00FF00;padding:4px 12px 8px;border-bottom:1px solid #222;white-space:nowrap;}
+#hover-panel .hp-actions{display:flex;gap:0;}
+#hover-panel .hp-btn{flex:1;padding:7px 10px;border:none;background:#111;color:#fff;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:900;cursor:pointer;border-right:1px solid #222;}
+#hover-panel .hp-btn:last-child{border-right:none;}
+#hover-panel .hp-btn:hover{background:#FF3E00;color:#fff;}
 
 /* Inline errors panel (below lang-strip) */
 #errors-panel{display:none;margin-top:12px;border:3px solid var(--primary);box-shadow:4px 4px 0 var(--primary);background:#fff;}
@@ -3883,6 +3892,107 @@ function wsClose() {
 }
 
 document.getElementById('wsMod').addEventListener('click', function(e) { if (e.target === this) wsClose(); });
+</script>
+
+<!-- HOVER CORRECTION PANEL -->
+<div id="hover-panel">
+  <div class="hp-word" id="hp-wrong"></div>
+  <div class="hp-sug" id="hp-sug"></div>
+  <div class="hp-actions">
+    <button class="hp-btn" id="hp-fix">⚡ Fix</button>
+    <button class="hp-btn" id="hp-copy">📋 Copy</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var panel     = document.getElementById('hover-panel');
+  var hpWrong   = document.getElementById('hp-wrong');
+  var hpSug     = document.getElementById('hp-sug');
+  var hpFix     = document.getElementById('hp-fix');
+  var hpCopy    = document.getElementById('hp-copy');
+  var hideTimer = null;
+  var activeSpan = null;
+
+  function showPanel(span, e){
+    clearTimeout(hideTimer);
+    activeSpan = span;
+    var wrong = span.getAttribute('data-wrong');
+    var sug   = span.getAttribute('data-sug');
+    hpWrong.textContent = wrong + ' ✗';
+    hpSug.textContent   = '→ ' + sug;
+
+    // Position near the span
+    var rect = span.getBoundingClientRect();
+    var pw = 200;
+    var left = rect.left + window.scrollX;
+    var top  = rect.bottom + window.scrollY + 6;
+
+    // Keep inside viewport
+    if(left + pw > window.innerWidth - 10) left = window.innerWidth - pw - 10;
+    if(top + 100 > window.innerHeight + window.scrollY) top = rect.top + window.scrollY - 106;
+
+    panel.style.left    = left + 'px';
+    panel.style.top     = top  + 'px';
+    panel.style.display = 'block';
+  }
+
+  function hidePanel(){
+    hideTimer = setTimeout(function(){ panel.style.display='none'; activeSpan=null; }, 180);
+  }
+
+  // Show on mouseenter of any .highlight-error span (event delegation on textArea)
+  document.getElementById('text').addEventListener('mouseover', function(e){
+    var span = e.target.closest ? e.target.closest('.highlight-error') : null;
+    if(!span && e.target.classList && e.target.classList.contains('highlight-error')) span = e.target;
+    if(span) showPanel(span, e);
+  });
+  document.getElementById('text').addEventListener('mouseout', function(e){
+    var span = e.target.closest ? e.target.closest('.highlight-error') : null;
+    if(!span && e.target.classList && e.target.classList.contains('highlight-error')) span = e.target;
+    if(span) hidePanel();
+  });
+
+  // Keep panel open when hovering over it
+  panel.addEventListener('mouseenter', function(){ clearTimeout(hideTimer); });
+  panel.addEventListener('mouseleave', hidePanel);
+
+  // Fix button
+  hpFix.addEventListener('click', function(){
+    if(!activeSpan) return;
+    var wrong = activeSpan.getAttribute('data-wrong');
+    var sug   = activeSpan.getAttribute('data-sug');
+    panel.style.display = 'none';
+    clearHighlights();
+    applyFix(wrong, sug, correctorLang);
+    // Mark fixed in wsWords and re-highlight remaining
+    wsWords.forEach(function(w){ if(w.lower === wrong) w.ok = true; });
+    var stillBad = wsWords.filter(function(w){ return !w.ok && w.sug; });
+    if(stillBad.length) highlightErrors(stillBad);
+    // Refresh panel list
+    openErrorsPanel(stillBad);
+    showToast('✓ ' + wrong + ' → ' + sug);
+    activeSpan = null;
+  });
+
+  // Copy button
+  hpCopy.addEventListener('click', function(){
+    if(!activeSpan) return;
+    var sug = activeSpan.getAttribute('data-sug');
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(sug).then(function(){ showToast('Copied: ' + sug + ' ✅'); });
+    } else {
+      showToast('Copied: ' + sug + ' ✅');
+    }
+    panel.style.display = 'none';
+  });
+
+  // Hide panel on scroll or click elsewhere
+  document.addEventListener('click', function(e){
+    if(!panel.contains(e.target)) panel.style.display = 'none';
+  });
+  document.addEventListener('scroll', function(){ panel.style.display = 'none'; }, true);
+})();
 </script>
 
 </body>
