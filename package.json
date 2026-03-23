@@ -1,9 +1,12 @@
 {
-  "name": "textenginepro",
+  "name": "text-engine-pro",
   "version": "1.0.0",
-  "private": true,
+  "description": "Text Engine Pro — Language Detection API powered by franc",
   "type": "module",
   "dependencies": {
     "franc-min": "^6.2.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
