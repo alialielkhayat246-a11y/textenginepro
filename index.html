@@ -64,30 +64,29 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
 .corrector-status{font-family:'JetBrains Mono',monospace;font-size:12px;color:#555;padding:0 14px 10px;background:#f9f9f9;min-height:22px;}
 .corrector-status.has-fixes{color:#008000;font-weight:700;}
 .corrector-status.no-fixes{color:#888;}
-.highlight-error{background:#ffe0e0;border-bottom:2px solid #ff3e00;cursor:pointer;position:relative;}
+.highlight-error{background:#FFE600;border-bottom:2px solid #FF3E00;cursor:pointer;position:relative;border-radius:2px;}
 
-
-/* Errors panel modal */
-.errors-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:950;justify-content:center;align-items:center;padding:16px;}
-.errors-overlay.open{display:flex;}
-.errors-box{background:#fff;border:4px solid var(--primary);box-shadow:10px 10px 0 var(--primary);max-width:680px;width:100%;max-height:85vh;display:flex;flex-direction:column;}
-.errors-box-header{background:var(--primary);color:#fff;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
-.errors-box-header h3{margin:0;font-size:1rem;font-family:'JetBrains Mono',monospace;font-weight:900;}
-.errors-box-close{background:none;border:2px solid #fff;color:#fff;font-weight:900;padding:4px 12px;cursor:pointer;font-size:14px;box-shadow:none;}
-.errors-box-close:hover{background:var(--accent);border-color:var(--accent);}
-.errors-summary{padding:10px 18px;background:#f9f9f9;border-bottom:2px solid #eee;font-size:13px;font-family:'JetBrains Mono',monospace;color:#555;flex-shrink:0;}
-.errors-list{overflow-y:auto;padding:12px 18px;flex:1;}
-.error-item{display:flex;align-items:center;gap:10px;padding:9px 12px;margin-bottom:8px;border:2px solid #eee;background:#fff;transition:.1s;}
-.error-item:hover{border-color:var(--accent);background:#fff8f6;}
-.error-wrong{font-family:'JetBrains Mono',monospace;font-weight:900;color:#cc0000;font-size:14px;flex:1;text-decoration:line-through;}
-.error-arrow{color:#aaa;font-size:16px;flex-shrink:0;}
-.error-right{font-family:'JetBrains Mono',monospace;font-weight:700;color:#006600;font-size:14px;flex:1;}
-.error-fix-btn{padding:5px 12px;background:var(--primary);color:#fff;border:2px solid var(--primary);font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap;box-shadow:2px 2px 0 #555;flex-shrink:0;}
-.error-fix-btn:hover{background:var(--accent);border-color:var(--accent);}
-.error-fix-btn.fixed{background:#006600;border-color:#006600;pointer-events:none;}
-.errors-footer{padding:12px 18px;border-top:2px solid #eee;display:flex;gap:10px;flex-shrink:0;background:#fff;}
-.errors-footer button{flex:1;padding:10px;}
-.errors-empty{text-align:center;padding:40px 20px;color:#888;font-family:'JetBrains Mono',monospace;font-size:13px;}
+/* Inline errors panel (below lang-strip) */
+#errors-panel{display:none;margin-top:12px;border:3px solid var(--primary);box-shadow:4px 4px 0 var(--primary);background:#fff;}
+#errors-panel.visible{display:block;}
+.ep-header{display:flex;align-items:center;justify-content:space-between;background:var(--primary);color:#fff;padding:10px 16px;flex-wrap:wrap;gap:8px;}
+.ep-header h3{margin:0;font-size:.9rem;font-family:'JetBrains Mono',monospace;font-weight:900;white-space:nowrap;}
+.ep-summary{font-family:'JetBrains Mono',monospace;font-size:11px;color:#ccc;flex:1;text-align:right;}
+.ep-close{background:none;border:2px solid #fff;color:#fff;font-weight:900;padding:3px 10px;cursor:pointer;font-size:13px;box-shadow:none;min-height:unset;}
+.ep-close:hover{background:var(--accent);border-color:var(--accent);}
+.ep-list{max-height:320px;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:7px;}
+.ep-item{display:grid;grid-template-columns:1fr auto 1fr auto;align-items:center;gap:10px;padding:8px 12px;border:2px solid #eee;background:#fff;transition:.1s;}
+.ep-item:hover{border-color:var(--accent);background:#fffdf5;}
+.ep-item.ep-fixed{opacity:.45;pointer-events:none;}
+.ep-wrong{font-family:'JetBrains Mono',monospace;font-weight:900;color:#cc0000;font-size:13px;text-decoration:line-through;word-break:break-all;}
+.ep-arrow{color:#aaa;font-size:15px;text-align:center;}
+.ep-right{font-family:'JetBrains Mono',monospace;font-weight:700;color:#006600;font-size:13px;word-break:break-all;}
+.ep-fix-btn{padding:4px 12px;background:var(--primary);color:#fff;border:2px solid var(--primary);font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap;box-shadow:2px 2px 0 #555;}
+.ep-fix-btn:hover{background:var(--accent);border-color:var(--accent);}
+.ep-fix-btn.done{background:#006600;border-color:#006600;pointer-events:none;}
+.ep-footer{padding:10px 14px;border-top:2px solid #eee;display:flex;gap:8px;background:#f9f9f9;}
+.ep-footer button{flex:1;padding:9px;font-size:13px;}
+.ep-empty{text-align:center;padding:28px 20px;color:#888;font-family:'JetBrains Mono',monospace;font-size:13px;}
 
 /* Modal */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:900;justify-content:center;align-items:center;padding:16px;}
@@ -138,22 +137,6 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
 <amp-auto-ads type="adsense" data-ad-client="ca-pub-6576366354422516"></amp-auto-ads>
 
 <!-- PAGE WRAPPER with side ads -->
-
-<!-- ERRORS PANEL MODAL -->
-<div class="errors-overlay" id="errorsModal">
-  <div class="errors-box">
-    <div class="errors-box-header">
-      <h3>&#x1F50D; Spelling Errors Found</h3>
-      <button class="errors-box-close" onclick="closeErrorsModal()">&#x2715; CLOSE</button>
-    </div>
-    <div class="errors-summary" id="errors-summary">Scanning...</div>
-    <div class="errors-list" id="errors-list"></div>
-    <div class="errors-footer">
-      <button onclick="fixAllFromModal()" style="background:var(--primary);color:#fff;border:3px solid var(--primary);">&#x2728; Fix All</button>
-      <button onclick="closeErrorsModal()" style="background:#f0f0f0;color:#555;border:3px solid #ccc;box-shadow:none;">Close</button>
-    </div>
-  </div>
-</div>
 
 <!-- PRIVACY MODAL -->
 <div class="modal-overlay" id="privacyModal" role="dialog" aria-modal="true" aria-label="Privacy Policy">
@@ -280,6 +263,20 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
     <label>&#x1F310; DETECTED LANGUAGE:</label>
     <span class="lang-badge" id="lang-badge">&#x2014; TYPE TO DETECT &#x2014;</span>
     <button class="lang-btn" id="lang-btn" onclick="detectLanguage()">Detect Language &#x1F50D;</button>
+  </div>
+
+  <!-- INLINE ERRORS PANEL -->
+  <div id="errors-panel">
+    <div class="ep-header">
+      <h3>&#x1F50D; Spelling Errors Found</h3>
+      <span class="ep-summary" id="ep-summary"></span>
+      <button class="ep-close" onclick="closeErrorsPanel()">&#x2715; CLOSE</button>
+    </div>
+    <div class="ep-list" id="ep-list"></div>
+    <div class="ep-footer">
+      <button onclick="epFixAll()" style="background:var(--primary);color:#fff;border:3px solid var(--primary);">&#x2728; Fix All</button>
+      <button onclick="closeErrorsPanel()" style="background:#f0f0f0;color:#555;border:3px solid #ccc;box-shadow:none;">Close</button>
+    </div>
   </div>
 
   <div class="content-hub">
@@ -3230,6 +3227,7 @@ function detectLanguage(){
 /* ── Auto Corrector state ─────────────────────────────── */
 var correctorLang = '';
 var _pendingFixes = [];   // cache of {wrong, right, count} for modal
+var wsWords = [];         // populated by wsBuild (LanguageTool or local fallback)
 
 /* Language display names */
 var LANG_NAMES = {
@@ -3357,19 +3355,37 @@ function applyFix(wrong, right, lang){
   return result !== t;
 }
 
-/* ── Auto Correct button ──────────────────────────────── */
+/* ── Auto Correct button — fix all from wsWords scan result ── */
 function runAutoCorrect(){
   if(!correctorLang){ showToast('Select a language first!'); return; }
-  var t = textArea.value;
+  var t = (textArea.innerText || textArea.value || '').trim();
   if(!t){ showToast('Nothing to correct!'); return; }
 
-  var errors = findErrors(t, correctorLang);
-  var fixes = 0;
-
-  for(var i = 0; i < errors.length; i++){
-    if(applyFix(errors[i].wrong, errors[i].right, correctorLang)) fixes++;
+  // If no scan done yet, run local fallback
+  if(!wsWords.length){
+    wsBuild(t, [], false);
   }
 
+  var errs = wsWords.filter(function(w){ return !w.ok && w.sug; });
+
+  if(!errs.length){
+    var status = document.getElementById('corrector-status');
+    status.className   = 'corrector-status no-fixes';
+    status.textContent = '\u2714 No common errors found \u2014 text looks good!';
+    showToast('No errors found \u2705');
+    return;
+  }
+
+  // Clear any yellow highlights first
+  clearHighlights();
+
+  var fixes = 0;
+  errs.forEach(function(e){
+    if(applyFix(e.lower, e.sug, correctorLang)) fixes++;
+  });
+
+  // Re-scan after fixing
+  wsWords = [];
   var status = document.getElementById('corrector-status');
   if(fixes > 0){
     status.className   = 'corrector-status has-fixes';
@@ -3380,67 +3396,133 @@ function runAutoCorrect(){
     status.textContent = '\u2714 No common errors found \u2014 text looks good!';
     showToast('No errors found \u2705');
   }
+  closeErrorsPanel();
 }
 
-/* ── Check Errors button \u2192 open modal ────────────────── */
+/* ── Check Errors button → highlight yellow + show inline panel ── */
 function showErrors(){
   if(!correctorLang){ showToast('Select a language first!'); return; }
-  var t = textArea.value;
+  var t = (textArea.innerText || textArea.value || '').trim();
   if(!t){ showToast('Nothing to check!'); return; }
 
-  _pendingFixes = findErrors(t, correctorLang);
-  openErrorsModal(_pendingFixes);
+  // If wsWords not populated yet (no scan done), run local fallback first
+  if(!wsWords.length){
+    wsBuild(t, [], false);
+  }
+
+  var errs = wsWords.filter(function(w){ return !w.ok && w.sug; });
+
+  // Highlight errors yellow in the editor
+  highlightErrors(errs);
+
+  // Show inline panel
+  openErrorsPanel(errs);
 }
 
-/* ── Errors modal ─────────────────────────────────────── */
-function openErrorsModal(errors){
-  var overlay  = document.getElementById('errorsModal');
-  var summary  = document.getElementById('errors-summary');
-  var listEl   = document.getElementById('errors-list');
+/* Highlight error words with yellow background in contenteditable */
+function highlightErrors(errs){
+  // Remove existing highlights first
+  clearHighlights();
+  if(!errs.length) return;
+
+  var html = textArea.innerHTML;
+  // Work on innerText, rebuild with spans
+  var plain = textArea.innerText.replace(/\u00A0/g,' ');
+
+  // Build a sorted list of replacements by position (longest first to avoid partial matches)
+  // We'll do a simple scan-and-replace on plain text then set innerHTML
+  var words = errs.map(function(e){ return e.lower; });
+  words.sort(function(a,b){ return b.length - a.length; });
+
+  // Escape for regex
+  function esc(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+
+  var result = plain;
+  // Use placeholder tokens to avoid double-replacing
+  var tokens = [];
+  words.forEach(function(w, i){
+    var err = errs.find(function(e){ return e.lower === w; });
+    if(!err) return;
+    var re = new RegExp('(^|[\\s.,!?;:\'"\\(\\)\\[\\]{}<>]|^)(' + esc(w) + ')([\\s.,!?;:\'"\\(\\)\\[\\]{}<>]|$)','gi');
+    result = result.replace(re, function(full, pre, match, post){
+      var token = '\x00SPAN' + tokens.length + '\x00';
+      tokens.push('<span class="highlight-error" data-wrong="' + match.toLowerCase() + '" data-sug="' + err.sug + '">' + match + '</span>');
+      return pre + token + post;
+    });
+  });
+  // Replace tokens with actual spans
+  tokens.forEach(function(span, i){
+    result = result.replace('\x00SPAN' + i + '\x00', span);
+  });
+  // Preserve line breaks
+  result = result.replace(/\n/g, '<br>');
+  textArea.innerHTML = result;
+}
+
+/* Remove all yellow highlights, restore plain text */
+function clearHighlights(){
+  var spans = textArea.querySelectorAll('.highlight-error');
+  spans.forEach(function(s){
+    var txt = document.createTextNode(s.textContent);
+    s.parentNode.replaceChild(txt, s);
+  });
+  // Normalize text nodes
+  textArea.normalize();
+}
+
+/* ── Inline errors panel functions ────────────────────────── */
+function openErrorsPanel(errs){
+  var panel   = document.getElementById('errors-panel');
+  var listEl  = document.getElementById('ep-list');
+  var summary = document.getElementById('ep-summary');
 
   listEl.innerHTML = '';
 
-  if(errors.length === 0){
-    summary.textContent = '\u2714 No spelling errors found \u2014 your text looks great!';
-    listEl.innerHTML = '<div class="errors-empty">\u2705 No issues detected in the current text.</div>';
+  if(!errs.length){
+    summary.textContent = '';
+    listEl.innerHTML = '<div class="ep-empty">\u2705 No spelling errors found \u2014 text looks great!</div>';
   } else {
-    var total = errors.reduce(function(s,e){ return s + e.count; }, 0);
-    summary.textContent = errors.length + ' unique error' + (errors.length !== 1 ? 's' : '') +
-                          ' found (' + total + ' occurrence' + (total !== 1 ? 's' : '') +
-                          ') \u2014 click Fix to correct individually or Fix All to correct all.';
+    var total = errs.reduce(function(s,e){ return s + e.count; }, 0);
+    summary.textContent = errs.length + ' error' + (errs.length !== 1 ? 's' : '') +
+                          ', ' + total + ' occurrence' + (total !== 1 ? 's' : '');
 
-    errors.forEach(function(e, idx){
+    errs.forEach(function(e, idx){
       var item = document.createElement('div');
-      item.className = 'error-item';
-      item.id = 'err-item-' + idx;
+      item.className = 'ep-item';
+      item.id = 'ep-item-' + idx;
 
       var wrongEl = document.createElement('span');
-      wrongEl.className = 'error-wrong';
-      wrongEl.textContent = e.wrong + (e.count > 1 ? ' \u00d7' + e.count : '');
+      wrongEl.className = 'ep-wrong';
+      // Show the actual word as it appears in text (original case), with count
+      wrongEl.textContent = e.word + (e.count > 1 ? ' \u00d7' + e.count : '');
 
       var arrowEl = document.createElement('span');
-      arrowEl.className = 'error-arrow';
+      arrowEl.className = 'ep-arrow';
       arrowEl.textContent = '\u2192';
 
       var rightEl = document.createElement('span');
-      rightEl.className = 'error-right';
-      rightEl.textContent = e.right;
+      rightEl.className = 'ep-right';
+      rightEl.textContent = e.sug;
 
       var fixBtn = document.createElement('button');
-      fixBtn.className = 'error-fix-btn';
+      fixBtn.className = 'ep-fix-btn';
       fixBtn.textContent = 'Fix';
+      fixBtn.setAttribute('data-lower', e.lower);
+      fixBtn.setAttribute('data-sug', e.sug);
       fixBtn.setAttribute('data-idx', idx);
       fixBtn.onclick = function(){
-        var i = parseInt(this.getAttribute('data-idx'));
-        var err = _pendingFixes[i];
-        if(err && applyFix(err.wrong, err.right, correctorLang)){
+        var lower = this.getAttribute('data-lower');
+        var sug   = this.getAttribute('data-sug');
+        var i     = parseInt(this.getAttribute('data-idx'));
+        clearHighlights();
+        if(applyFix(lower, sug, correctorLang)){
           this.textContent = '\u2713 Fixed';
-          this.classList.add('fixed');
-          document.getElementById('err-item-' + i).style.opacity = '0.45';
-          // Update summary
-          var remaining = document.querySelectorAll('.error-fix-btn:not(.fixed)').length;
-          document.getElementById('errors-summary').textContent =
-            remaining + ' error' + (remaining !== 1 ? 's' : '') + ' remaining.';
+          this.classList.add('done');
+          var item = document.getElementById('ep-item-' + i);
+          if(item) item.classList.add('ep-fixed');
+          // Update wsWords entry
+          wsWords.forEach(function(w){ if(w.lower === lower){ w.ok = true; } });
+          epUpdateSummary();
         }
       };
 
@@ -3452,76 +3534,105 @@ function openErrorsModal(errors){
     });
   }
 
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
+  panel.classList.add('visible');
+  // Scroll panel into view
+  setTimeout(function(){ panel.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 80);
 }
 
-function closeErrorsModal(){
-  document.getElementById('errorsModal').classList.remove('open');
-  document.body.style.overflow = '';
-  // Refresh corrector status
-  var remaining = document.querySelectorAll('.error-fix-btn:not(.fixed)').length;
+function closeErrorsPanel(){
+  document.getElementById('errors-panel').classList.remove('visible');
+  clearHighlights();
+  // Refresh status
+  var remaining = document.querySelectorAll('.ep-fix-btn:not(.done)').length;
   var status = document.getElementById('corrector-status');
-  if(_pendingFixes.length > 0){
-    if(remaining === 0){
-      status.className   = 'corrector-status has-fixes';
-      status.textContent = '\u2713 All errors fixed!';
-    } else {
-      status.className   = 'corrector-status has-fixes';
-      status.textContent = remaining + ' error' + (remaining !== 1 ? 's' : '') + ' still remaining.';
-    }
+  if(remaining === 0 && document.querySelectorAll('.ep-item').length > 0){
+    status.className   = 'corrector-status has-fixes';
+    status.textContent = '\u2713 All errors fixed!';
   }
 }
 
-function fixAllFromModal(){
-  var btns = document.querySelectorAll('.error-fix-btn:not(.fixed)');
-  btns.forEach(function(btn){ btn.click(); });
-  setTimeout(function(){
-    closeErrorsModal();
-    showToast('\u2728 All errors fixed!');
-  }, 300);
+function epUpdateSummary(){
+  var remaining = document.querySelectorAll('.ep-fix-btn:not(.done)').length;
+  var total     = document.querySelectorAll('.ep-fix-btn').length;
+  var summary   = document.getElementById('ep-summary');
+  if(remaining === 0){
+    summary.textContent = '\u2713 All fixed!';
+  } else {
+    summary.textContent = remaining + ' of ' + total + ' remaining';
+  }
+  var status = document.getElementById('corrector-status');
+  status.className   = 'corrector-status has-fixes';
+  status.textContent = remaining > 0
+    ? remaining + ' error' + (remaining !== 1 ? 's' : '') + ' still remaining.'
+    : '\u2713 All errors fixed!';
 }
+
+function epFixAll(){
+  var btns = document.querySelectorAll('.ep-fix-btn:not(.done)');
+  btns.forEach(function(b){ b.click(); });
+  if(btns.length){
+    setTimeout(function(){
+      closeErrorsPanel();
+      showToast('\u2728 All errors fixed!');
+    }, 300);
+  }
+}
+
+function fixAllFromModal(){ epFixAll(); }
+function closeErrorsModal(){ closeErrorsPanel(); }
 
 function clearCorrections(){
   document.getElementById('corrector-lang').value = '';
   correctorLang = '';
   _pendingFixes = [];
+  wsWords = [];
+  closeErrorsPanel();
   onCorrectorLangChange();
   textArea.spellcheck = false;
 }
 
-/* Close errors modal on backdrop click */
-document.getElementById('errorsModal').addEventListener('click', function(e){
-  if(e.target === this) closeErrorsModal();
-});
-
-
 /* ── Init ─────────────────────────────────────────────────── */
 textArea.addEventListener('input', updateStats);
 
-/* ── Auto-scan: run error check 1 second after typing stops ── */
+/* ── Auto-scan: 1 second after typing stops, run LanguageTool scan ── */
 var _autoScanTimer = null;
 function autoScanOnIdle(){
   clearTimeout(_autoScanTimer);
   _autoScanTimer = setTimeout(function(){
     if(!correctorLang) return;
-    var t = textArea.value.trim();
+    var t = (textArea.innerText || textArea.value || '').trim();
     if(!t) return;
-    _pendingFixes = findErrors(t, correctorLang);
-    var status = document.getElementById('corrector-status');
-    if(_pendingFixes.length > 0){
-      var total = _pendingFixes.reduce(function(s,e){ return s + e.count; }, 0);
-      status.className   = 'corrector-status has-fixes';
-      status.textContent = '\u26a0\ufe0f ' + _pendingFixes.length + ' error' + (_pendingFixes.length !== 1 ? 's' : '') +
-                           ' found (' + total + ' occurrence' + (total !== 1 ? 's' : '') +
-                           ') \u2014 click Check Errors or Auto Correct.';
-    } else {
-      status.className   = 'corrector-status no-fixes';
-      status.textContent = '\u2714 No common errors found \u2014 text looks good!';
-    }
+    // Run the full word scanner pipeline (LanguageTool → local fallback)
+    // which populates wsWords, then update status bar
+    var ltMap = {en:'en-US',ar:'ar',fr:'fr',de:'de-DE',es:'es',pt:'pt-PT',it:'it',tr:'tr',ru:'ru'};
+    var ltLang = ltMap[correctorLang] || 'en-US';
+    fetch('https://api.languagetool.org/v2/check', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      body: 'text=' + encodeURIComponent(t) + '&language=' + ltLang
+    })
+    .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function(data){ wsBuild(t, data.matches || [], true); updateStatusFromWs(); })
+    .catch(function(){ wsBuild(t, [], false); updateStatusFromWs(); });
   }, 1000);
 }
 textArea.addEventListener('input', autoScanOnIdle);
+
+/* Update corrector status bar from wsWords scan result */
+function updateStatusFromWs(){
+  var errs = wsWords.filter(function(w){ return !w.ok; });
+  var status = document.getElementById('corrector-status');
+  if(errs.length > 0){
+    var total = errs.reduce(function(s,e){ return s + e.count; }, 0);
+    status.className   = 'corrector-status has-fixes';
+    status.textContent = '\u26a0\ufe0f ' + errs.length + ' error' + (errs.length !== 1 ? 's' : '') +
+                         ' found (' + total + ' occurrence' + (total !== 1 ? 's' : '') +
+                         ') \u2014 click Check Errors or Auto Correct.';
+  } else {
+    status.className   = 'corrector-status no-fixes';
+    status.textContent = '\u2714 No common errors found \u2014 text looks good!';
+  }
+}
 
 /* Strip HTML on paste — keep plain text only */
 textArea.addEventListener('paste', function(e){
@@ -3562,7 +3673,7 @@ window.onload = function(){
 </div><!-- end page-wrapper -->
 <script>
 /* Word Scanner — LanguageTool API + local fallback */
-var wsWords = [], wsMode = 'all';
+var wsMode = 'all';
 
 function openWordScanner() {
   if (!correctorLang) { showToast('Select a language first!'); return; }
