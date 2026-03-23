@@ -1,7 +1,3 @@
-{
-  "functions": {
-    "api/detect.js": {
-      "maxDuration": 10
-    }
-  }
-}
+{}
+
+
