@@ -3355,119 +3355,127 @@ function applyFix(wrong, right, lang){
   return result !== t;
 }
 
-/* ── Auto Correct button — fix all from wsWords scan result ── */
+/* ── Auto Correct button — fix all errors from wsWords, then re-scan ── */
 function runAutoCorrect(){
   if(!correctorLang){ showToast('Select a language first!'); return; }
   var t = (textArea.innerText || textArea.value || '').trim();
   if(!t){ showToast('Nothing to correct!'); return; }
 
-  // If no scan done yet, run local fallback
-  if(!wsWords.length){
-    wsBuild(t, [], false);
-  }
+  // If no scan yet, run local fallback synchronously first
+  if(!wsWords.length){ wsBuild(t, [], false); }
 
   var errs = wsWords.filter(function(w){ return !w.ok && w.sug; });
 
   if(!errs.length){
     var status = document.getElementById('corrector-status');
     status.className   = 'corrector-status no-fixes';
-    status.textContent = '\u2714 No common errors found \u2014 text looks good!';
+    status.textContent = '\u2714 No errors found \u2014 text looks good!';
     showToast('No errors found \u2705');
+    closeErrorsPanel();
     return;
   }
 
-  // Clear any yellow highlights first
   clearHighlights();
-
   var fixes = 0;
-  errs.forEach(function(e){
-    if(applyFix(e.lower, e.sug, correctorLang)) fixes++;
-  });
+  errs.forEach(function(e){ if(applyFix(e.lower, e.sug, correctorLang)) fixes++; });
 
-  // Re-scan after fixing
-  wsWords = [];
   var status = document.getElementById('corrector-status');
-  if(fixes > 0){
-    status.className   = 'corrector-status has-fixes';
-    status.textContent = '\u2713 ' + fixes + ' correction' + (fixes !== 1 ? 's' : '') + ' applied!';
-    showToast('\u2728 ' + fixes + ' correction' + (fixes !== 1 ? 's' : '') + ' applied!');
-  } else {
-    status.className   = 'corrector-status no-fixes';
-    status.textContent = '\u2714 No common errors found \u2014 text looks good!';
-    showToast('No errors found \u2705');
-  }
-  closeErrorsPanel();
+  status.className   = 'corrector-status has-fixes';
+  status.textContent = '\u2713 ' + fixes + ' correction' + (fixes !== 1 ? 's' : '') + ' applied! Re-scanning\u2026';
+  showToast('\u2728 ' + fixes + ' correction' + (fixes !== 1 ? 's' : '') + ' applied!');
+
+  // Re-scan after fixing so panel updates
+  wsWords = [];
+  var t2 = (textArea.innerText || textArea.value || '').trim();
+  var ltMap = {en:'en-US',ar:'ar',fr:'fr',de:'de-DE',es:'es',pt:'pt-PT',it:'it',tr:'tr',ru:'ru'};
+  var ltLang = ltMap[correctorLang] || 'en-US';
+  fetch('https://api.languagetool.org/v2/check', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'text=' + encodeURIComponent(t2) + '&language=' + ltLang
+  })
+  .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(function(data){ wsBuild(t2, data.matches || [], true); afterScan(); })
+  .catch(function(){ wsBuild(t2, [], false); afterScan(); });
 }
 
-/* ── Check Errors button → highlight yellow + show inline panel ── */
+/* ── Check Errors button → fresh scan from wsWords → highlight + panel ── */
 function showErrors(){
   if(!correctorLang){ showToast('Select a language first!'); return; }
   var t = (textArea.innerText || textArea.value || '').trim();
   if(!t){ showToast('Nothing to check!'); return; }
 
-  // If wsWords not populated yet (no scan done), run local fallback first
-  if(!wsWords.length){
-    wsBuild(t, [], false);
-  }
+  var status = document.getElementById('corrector-status');
+  status.textContent = '\u23F3 Scanning\u2026';
 
-  var errs = wsWords.filter(function(w){ return !w.ok && w.sug; });
-
-  // Highlight errors yellow in the editor
-  highlightErrors(errs);
-
-  // Show inline panel
-  openErrorsPanel(errs);
+  var ltMap = {en:'en-US',ar:'ar',fr:'fr',de:'de-DE',es:'es',pt:'pt-PT',it:'it',tr:'tr',ru:'ru'};
+  var ltLang = ltMap[correctorLang] || 'en-US';
+  fetch('https://api.languagetool.org/v2/check', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'text=' + encodeURIComponent(t) + '&language=' + ltLang
+  })
+  .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
+  .then(function(data){ wsBuild(t, data.matches || [], true); afterScan(); })
+  .catch(function(){ wsBuild(t, [], false); afterScan(); });
 }
 
 /* Highlight error words with yellow background in contenteditable */
 function highlightErrors(errs){
-  // Remove existing highlights first
   clearHighlights();
   if(!errs.length) return;
 
-  var html = textArea.innerHTML;
-  // Work on innerText, rebuild with spans
-  var plain = textArea.innerText.replace(/\u00A0/g,' ');
+  // Get plain text, escape HTML entities for safe innerHTML building
+  var plain = (textArea.innerText || '').replace(/\u00A0/g, ' ');
 
-  // Build a sorted list of replacements by position (longest first to avoid partial matches)
-  // We'll do a simple scan-and-replace on plain text then set innerHTML
-  var words = errs.map(function(e){ return e.lower; });
-  words.sort(function(a,b){ return b.length - a.length; });
+  function escHtml(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function escRe(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
 
-  // Escape for regex
-  function esc(s){ return s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+  // Sort errors longest-first so longer words are matched before substrings
+  var sorted = errs.slice().sort(function(a,b){ return b.lower.length - a.lower.length; });
 
-  var result = plain;
-  // Use placeholder tokens to avoid double-replacing
-  var tokens = [];
-  words.forEach(function(w, i){
-    var err = errs.find(function(e){ return e.lower === w; });
-    if(!err) return;
-    var re = new RegExp('(^|[\\s.,!?;:\'"\\(\\)\\[\\]{}<>]|^)(' + esc(w) + ')([\\s.,!?;:\'"\\(\\)\\[\\]{}<>]|$)','gi');
-    result = result.replace(re, function(full, pre, match, post){
-      var token = '\x00SPAN' + tokens.length + '\x00';
-      tokens.push('<span class="highlight-error" data-wrong="' + match.toLowerCase() + '" data-sug="' + err.sug + '">' + match + '</span>');
-      return pre + token + post;
+  // Build regex that matches all error words in one pass
+  var alts = sorted.map(function(e){ return escRe(e.lower); }).join('|');
+  var isLatin = ['en','fr','de','es','pt','it','tr'].indexOf(correctorLang) !== -1;
+
+  var re;
+  if(isLatin){
+    re = new RegExp('(?<![\\w\\u00C0-\\u024F])(' + alts + ')(?![\\w\\u00C0-\\u024F])', 'gi');
+  } else {
+    // For Arabic/Russian: simple word boundary via surrounding non-word chars or start/end
+    re = new RegExp('(^|[\\s\\.,!\\?;:\'"\\(\\)\\[\\]{}<>\\u060C\\u061B\\u061F])(' + alts + ')([\\s\\.,!\\?;:\'"\\(\\)\\[\\]{}<>\\u060C\\u061B\\u061F]|$)', 'gi');
+  }
+
+  var errMap = {};
+  sorted.forEach(function(e){ errMap[e.lower] = e.sug; });
+
+  var result;
+  if(isLatin){
+    result = escHtml(plain).replace(re, function(match){
+      var sug = errMap[match.toLowerCase()] || '';
+      return '<span class="highlight-error" data-wrong="' + match.toLowerCase() + '" data-sug="' + escHtml(sug) + '">' + escHtml(match) + '</span>';
     });
-  });
-  // Replace tokens with actual spans
-  tokens.forEach(function(span, i){
-    result = result.replace('\x00SPAN' + i + '\x00', span);
-  });
-  // Preserve line breaks
+  } else {
+    result = escHtml(plain).replace(re, function(full, pre, match, post){
+      var sug = errMap[match.toLowerCase()] || '';
+      return escHtml(pre) + '<span class="highlight-error" data-wrong="' + match.toLowerCase() + '" data-sug="' + escHtml(sug) + '">' + escHtml(match) + '</span>' + escHtml(post);
+    });
+  }
+
+  // Restore line breaks
   result = result.replace(/\n/g, '<br>');
   textArea.innerHTML = result;
 }
 
-/* Remove all yellow highlights, restore plain text */
+/* Remove all yellow highlights cleanly */
 function clearHighlights(){
   var spans = textArea.querySelectorAll('.highlight-error');
+  if(!spans.length) return;
   spans.forEach(function(s){
-    var txt = document.createTextNode(s.textContent);
-    s.parentNode.replaceChild(txt, s);
+    s.outerHTML = s.textContent;
   });
-  // Normalize text nodes
-  textArea.normalize();
 }
 
 /* ── Inline errors panel functions ────────────────────────── */
@@ -3514,15 +3522,19 @@ function openErrorsPanel(errs){
         var lower = this.getAttribute('data-lower');
         var sug   = this.getAttribute('data-sug');
         var i     = parseInt(this.getAttribute('data-idx'));
+        // Clear highlights before applying fix (applyFix uses textArea.value which resets innerHTML)
         clearHighlights();
         if(applyFix(lower, sug, correctorLang)){
           this.textContent = '\u2713 Fixed';
           this.classList.add('done');
-          var item = document.getElementById('ep-item-' + i);
-          if(item) item.classList.add('ep-fixed');
-          // Update wsWords entry
+          var itm = document.getElementById('ep-item-' + i);
+          if(itm) itm.classList.add('ep-fixed');
+          // Mark as fixed in wsWords
           wsWords.forEach(function(w){ if(w.lower === lower){ w.ok = true; } });
           epUpdateSummary();
+          // Re-highlight remaining unfixed errors
+          var stillBad = wsWords.filter(function(w){ return !w.ok && w.sug; });
+          if(stillBad.length) highlightErrors(stillBad);
         }
       };
 
@@ -3594,16 +3606,14 @@ function clearCorrections(){
 /* ── Init ─────────────────────────────────────────────────── */
 textArea.addEventListener('input', updateStats);
 
-/* ── Auto-scan: 1 second after typing stops, run LanguageTool scan ── */
+/* ── Auto-scan: 0.5s after typing stops → full scan + highlight + panel ── */
 var _autoScanTimer = null;
 function autoScanOnIdle(){
   clearTimeout(_autoScanTimer);
   _autoScanTimer = setTimeout(function(){
     if(!correctorLang) return;
     var t = (textArea.innerText || textArea.value || '').trim();
-    if(!t) return;
-    // Run the full word scanner pipeline (LanguageTool → local fallback)
-    // which populates wsWords, then update status bar
+    if(!t){ closeErrorsPanel(); return; }
     var ltMap = {en:'en-US',ar:'ar',fr:'fr',de:'de-DE',es:'es',pt:'pt-PT',it:'it',tr:'tr',ru:'ru'};
     var ltLang = ltMap[correctorLang] || 'en-US';
     fetch('https://api.languagetool.org/v2/check', {
@@ -3612,11 +3622,19 @@ function autoScanOnIdle(){
       body: 'text=' + encodeURIComponent(t) + '&language=' + ltLang
     })
     .then(function(r){ if(!r.ok) throw new Error(r.status); return r.json(); })
-    .then(function(data){ wsBuild(t, data.matches || [], true); updateStatusFromWs(); })
-    .catch(function(){ wsBuild(t, [], false); updateStatusFromWs(); });
-  }, 1000);
+    .then(function(data){ wsBuild(t, data.matches || [], true); afterScan(); })
+    .catch(function(){ wsBuild(t, [], false); afterScan(); });
+  }, 500);
 }
 textArea.addEventListener('input', autoScanOnIdle);
+
+/* Called after every wsBuild — updates status + highlights + inline panel */
+function afterScan(){
+  var errs = wsWords.filter(function(w){ return !w.ok && w.sug; });
+  updateStatusFromWs();
+  highlightErrors(errs);
+  openErrorsPanel(errs);
+}
 
 /* Update corrector status bar from wsWords scan result */
 function updateStatusFromWs(){
@@ -3679,14 +3697,10 @@ function openWordScanner() {
   if (!correctorLang) { showToast('Select a language first!'); return; }
   var t = (textArea.innerText || textArea.value || '').trim();
   if (!t) { showToast('Type something first!'); return; }
-  wsWords = []; wsMode = 'all';
-  document.getElementById('ws-q').value = '';
-  wsTab('all', true);
-  document.getElementById('ws-grid').innerHTML = '<div class="ws-empty">&#x23F3; Checking with LanguageTool&#x2026;</div>';
-  document.getElementById('ws-sum').textContent  = 'Checking&#x2026;';
-  document.getElementById('ws-badge').textContent = '';
-  document.getElementById('wsMod').classList.add('open');
-  document.body.style.overflow = 'hidden';
+
+  var status = document.getElementById('corrector-status');
+  status.textContent = '\u23F3 Scanning\u2026';
+
   var ltMap = {en:'en-US',ar:'ar',fr:'fr',de:'de-DE',es:'es',pt:'pt-PT',it:'it',tr:'tr',ru:'ru'};
   var ltLang = ltMap[correctorLang] || 'en-US';
   fetch('https://api.languagetool.org/v2/check', {
@@ -3695,14 +3709,8 @@ function openWordScanner() {
     body: 'text=' + encodeURIComponent(t) + '&language=' + ltLang
   })
   .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(function(data) {
-    document.getElementById('ws-badge').textContent = '\uD83D\uDCE1 Powered by LanguageTool \u2014 same engine as browser spellcheck';
-    wsBuild(t, data.matches || [], true);
-  })
-  .catch(function() {
-    document.getElementById('ws-badge').textContent = '\u26A0\uFE0F Offline \u2014 using local dictionary';
-    wsBuild(t, [], false);
-  });
+  .then(function(data) { wsBuild(t, data.matches || [], true); afterScan(); })
+  .catch(function() { wsBuild(t, [], false); afterScan(); });
 }
 
 function wsBuild(t, matches, online) {
@@ -3728,7 +3736,9 @@ function wsBuild(t, matches, online) {
   }
   wsWords = Object.keys(map).map(function(k) { return map[k]; });
   wsWords.sort(function(a, b) { return a.ok !== b.ok ? (a.ok ? 1 : -1) : a.lower.localeCompare(b.lower); });
-  wsRender();
+  // Only render the word scanner UI if the modal is actually open
+  var mod = document.getElementById('wsMod');
+  if (mod && mod.classList.contains('open')) wsRender();
 }
 
 function wsRender() {
