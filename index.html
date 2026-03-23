@@ -284,54 +284,80 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
     <article class="article">
       <h2>&#x1F4D8; How to Use Every Tool</h2>
 
-      <h3>&#x1F50D; Detect Language</h3>
-      <p><strong>What it does:</strong> Identifies the actual language of your text using the <em>franc</em> trigram engine covering 175+ languages. Type or paste text, then click Detect Language. Works best with 20+ characters.</p>
-
-      <h3>&#x1F9E0; Smart Fix</h3>
-      <p><strong>What it does:</strong> Fixes text typed with the wrong keyboard layout. If you typed Arabic words while in English mode (or vice versa), Smart Fix detects the dominant language and converts automatically.</p>
-      <p><strong>Example:</strong> <code>lvpf</code> (wrong layout) &#x27A1; <code>بلاي</code></p>
-
-      <h3>EN &#x27A1; AR &nbsp;/&nbsp; AR &#x27A1; EN</h3>
-      <p>Manually converts between Arabic and English keyboard layouts key-by-key. Use when you know which direction you mis-typed.</p>
-
       <h3>&#x1F524; Capitalize</h3>
-      <p>Converts to Title Case. <code>the quick brown fox</code> &#x27A1; <code>The Quick Brown Fox</code></p>
+      <p><strong>What it does:</strong> Capitalizes the first letter of every single word. <code>the quick brown fox</code> &#x27A1; <code>The Quick Brown Fox</code></p>
 
-      <h3>&#x1F4E2; UPPERCASE &nbsp;/&nbsp; &#x1F4DD; lowercase</h3>
-      <p>Instantly switch the case of all letters in your text.</p>
+      <h3>&#x1F4E2; UPPERCASE</h3>
+      <p>Converts every letter in your text to uppercase instantly. <code>hello world</code> &#x27A1; <code>HELLO WORLD</code></p>
+
+      <h3>&#x1F4DD; lowercase</h3>
+      <p>Converts every letter to lowercase. <code>HELLO WORLD</code> &#x27A1; <code>hello world</code></p>
+
+      <h3>&#x1F3F7;&#xFE0F; Title Case</h3>
+      <p><strong>What it does:</strong> Smart title formatting — capitalizes the first letter of major words and keeps connector words (a, an, the, of, in, and, but, or…) lowercase unless they are the first word. <code>the lord of the rings</code> &#x27A1; <code>The Lord of the Rings</code></p>
 
       <h3>&#x1F9F9; Clean Space</h3>
-      <p>Removes double spaces, extra tabs, and leading/trailing whitespace.</p>
+      <p>Removes double spaces, extra tabs, and leading/trailing whitespace from your entire text in one click.</p>
 
-      <h3>&#x2705; Copy &nbsp;/&nbsp; &#x1F5D1; Clear</h3>
-      <p><strong>Copy</strong> sends the full text to your clipboard. <strong>Clear</strong> wipes the editor and the auto-saved draft.</p>
+      <h3>&#x2705; Copy &nbsp;/&nbsp; &#x1F5D1;&#xFE0F; Clear</h3>
+      <p><strong>Copy</strong> sends the full text to your clipboard. <strong>Clear</strong> wipes the editor and deletes the auto-saved draft from localStorage.</p>
+
+      <h3>EN &#x27A1; AR &nbsp;/&nbsp; AR &#x27A1; EN</h3>
+      <p>Manually converts between Arabic and English keyboard layouts key-by-key. Use when you know which direction you mis-typed and want full control.</p>
+
+      <h3>&#x1F9E0; Smart Fix</h3>
+      <p><strong>What it does:</strong> Fixes text typed with the wrong keyboard layout automatically. Smart Fix counts Arabic vs Latin characters, detects the dominant language, and converts the entire text in the right direction.</p>
+      <p><strong>Example:</strong> <code>lvpf</code> (typed in EN mode) &#x27A1; <code>بلاي</code></p>
+
+      <h3>&#x270F;&#xFE0F; Auto Corrector</h3>
+      <p>Select a language from the dropdown to enable three tools: <strong>Auto Correct</strong> fixes all detected errors at once, <strong>Check Errors</strong> highlights misspelled words in yellow inside the editor and shows the full error list below, and <strong>Scan Words</strong> runs a deep scan of every word and shows results in the panel. The corrector uses LanguageTool online and falls back to a built-in dictionary when offline. Supports English, Arabic, French, German, Spanish, Portuguese, Italian, Turkish, and Russian.</p>
+
+      <h3>&#x1F4CB; Check Errors</h3>
+      <p>Runs a fresh scan, highlights every misspelled word in <strong style="background:#FFE600;padding:0 3px;">yellow</strong> directly inside the editor, and opens the error list below the Detect Language section. Click <strong>Fix</strong> on individual words or <strong>Fix All</strong> to correct everything at once. The page scrolls smoothly to the editor so you can see the highlights.</p>
+
+      <h3>&#x1F50D; Scan Words</h3>
+      <p>Scans all words in the text and shows the full results in the inline panel — both correct and incorrect words. Errors show a suggested fix with a Fix button. Uses LanguageTool when online, local dictionary when offline.</p>
+
+      <h3>&#x1F310; Detect Language</h3>
+      <p>Identifies the language of your text using a two-layer system: Unicode script detection (Arabic, Cyrillic, Devanagari, Thai, etc.) and common-word frequency matching for Latin-script languages. Works fully offline. Results show the language name, native name, script, language family, and ISO code. Works best with 20+ characters.</p>
     </article>
 
     <article class="article">
       <h2>&#x1F680; Tech Behind the Tool</h2>
-      <p>Text Engine Pro is 100% client-side. Your text never leaves your browser. We use <code>localStorage</code> to auto-save your draft — no server, no accounts, no tracking.</p>
+      <p>Text Engine Pro is 100% client-side. Your text never leaves your browser. <code>localStorage</code> auto-saves your draft on every keystroke — no server, no accounts, no tracking.</p>
+      <h3>Auto-Scan Engine</h3>
+      <p>Every 0.5 seconds after you stop typing, the engine silently runs a full LanguageTool scan in the background, populates the error list, and updates highlights — all without moving the page or interrupting your flow.</p>
       <h3>EN &#x21C4; AR Keyboard Mapping</h3>
       <p>A precise key-position hash map of the standard Arabic QWERTY layout. The two-character ligature <strong>&#x644;&#x627;</strong> (B key) is handled via priority lookahead, running in O(n) time.</p>
+      <h3>Language Detection</h3>
+      <p>Detection runs in two layers. First, Unicode block ranges instantly identify non-Latin scripts. Then for Latin languages, a common-word frequency table matches against the top function words of each supported language. No external API needed — works fully offline.</p>
     </article>
 
     <article class="article">
       <h2>&#x2753; Frequently Asked Questions</h2>
       <div class="faq-item">
         <span class="faq-q">Is my text data private?</span>
-        <p>Yes. Fully serverless — your text is processed only in your browser and never transmitted anywhere.</p>
+        <p>Yes. Fully serverless — your text is processed only in your browser and never stored or transmitted anywhere except to LanguageTool for spell-checking (when online).</p>
       </div>
       <div class="faq-item">
         <span class="faq-q">Why is Smart Fix converting the wrong way?</span>
         <p>Smart Fix counts Arabic vs Latin characters. If your text is mixed, add more characters of the correct language or use the manual EN&#x27A1;AR / AR&#x27A1;EN buttons instead.</p>
       </div>
       <div class="faq-item">
+        <span class="faq-q">What is the difference between Capitalize and Title Case?</span>
+        <p><strong>Capitalize</strong> uppercases the first letter of every word without exception. <strong>Title Case</strong> follows editorial rules — small connector words like "of", "the", "and" stay lowercase unless they open the title.</p>
+      </div>
+      <div class="faq-item">
         <span class="faq-q">Can I use this for PDF text?</span>
-        <p>Yes. Paste PDF text here, fix the layout or encoding, then paste back into your document.</p>
+        <p>Yes. Paste PDF text here, fix the layout or encoding, then paste it back into your document.</p>
+      </div>
+      <div class="faq-item">
+        <span class="faq-q">Does Check Errors work offline?</span>
+        <p>Yes. If LanguageTool is unreachable the engine automatically falls back to the built-in local dictionary, which covers the most common spelling mistakes across all 9 supported languages.</p>
       </div>
       <div class="faq-item">
         <span class="faq-q">Does this site use cookies?</span>
-        <p>The tool itself uses <code>localStorage</code> only. Google AdSense ads may use cookies.
-           See our <a onclick="openModal()" style="cursor:pointer;text-decoration:underline;">Privacy Policy</a>.</p>
+        <p>The tool itself uses <code>localStorage</code> only. Google AdSense ads may use cookies. See our <a onclick="openModal()" style="cursor:pointer;text-decoration:underline;">Privacy Policy</a>.</p>
       </div>
     </article>
 
