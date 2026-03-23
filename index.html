@@ -3669,10 +3669,10 @@ function autoScanOnIdle(){
 textArea.addEventListener('input', autoScanOnIdle);
 
 /* Called after every wsBuild — updates status + highlights + inline panel */
-function afterScan(){
+function afterScan(skipHighlight){
   var errs = wsWords.filter(function(w){ return !w.ok && w.sug; });
   updateStatusFromWs();
-  highlightErrors(errs);
+  if(!skipHighlight) highlightErrors(errs);
   openErrorsPanel(errs);
 }
 
@@ -3749,8 +3749,8 @@ function openWordScanner() {
     body: 'text=' + encodeURIComponent(t) + '&language=' + ltLang
   })
   .then(function(r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-  .then(function(data) { wsBuild(t, data.matches || [], true); afterScan(); })
-  .catch(function() { wsBuild(t, [], false); afterScan(); });
+  .then(function(data) { wsBuild(t, data.matches || [], true); afterScan(true); })
+  .catch(function() { wsBuild(t, [], false); afterScan(true); });
 }
 
 function wsBuild(t, matches, online) {
