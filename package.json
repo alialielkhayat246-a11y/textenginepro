@@ -1,11 +1,5 @@
 {
   "name": "text-engine-pro",
   "version": "1.0.0",
-  "description": "Text Engine Pro — Language Detection API",
-  "dependencies": {
-    "franc-min": "^6.2.0"
-  },
-  "engines": {
-    "node": ">=18"
-  }
+  "description": "Text Engine Pro — Language Detection API"
 }
