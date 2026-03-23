@@ -188,7 +188,7 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
           <option value="ar">Arabic &#x2014; &#x0627;&#x0644;&#x0639;&#x0631;&#x0628;&#x064A;&#x0629;</option>
         </optgroup>
         <optgroup label="English">
-          <option value="en">English</option>
+          <option value="en" selected>English</option>
         </optgroup>
         <optgroup label="French">
           <option value="fr">French &#x2014; Fran&#xE7;ais</option>
@@ -3200,39 +3200,22 @@ function onCorrectorLangChange(){
     btnCorrect.disabled = false;
     btnCheck.disabled   = false;
     status.className    = 'corrector-status no-fixes';
-    var entryCount = (typeof CORRECTIONS !== 'undefined' && CORRECTIONS[correctorLang])
+    var entryCount = (CORRECTIONS && CORRECTIONS[correctorLang])
                    ? Object.keys(CORRECTIONS[correctorLang]).length : 0;
     status.textContent = 'Ready \u2014 ' + (LANG_NAMES[correctorLang] || correctorLang) +
-                         ' (' + entryCount + ' entries). Red underlines = browser spell check.';
+                         ' (' + entryCount + ' entries loaded).';
 
-    /* ── Fast browser spellcheck activation ──────────────────────────────
-       The browser only scans for red underlines when:
-       1. spellcheck="true"  AND  lang="xx"  are both set
-       2. The element is re-activated (toggling contenteditable forces a rescan)
-       3. A tiny DOM mutation nudges the spell engine to run immediately       */
+    /* Fast browser red-underline activation:
+       1. Set lang + spellcheck before focus
+       2. Toggle contenteditable off/on — resets the spell engine
+       3. ZWS insert+delete — forces immediate rescan               */
     textArea.setAttribute('lang', correctorLang);
     textArea.setAttribute('spellcheck', 'true');
     textArea.spellcheck = true;
     textArea.lang = correctorLang;
-
-    /* Step A: toggle contenteditable off→on — forces browser spell engine reset */
     textArea.contentEditable = 'false';
     textArea.contentEditable = 'true';
-
-    /* Step B: focus, then inject + remove a zero-width space.
-       This is the same trick used by Google Docs / Notion to trigger
-       an immediate spell-check scan without disturbing the text. */
     textArea.focus();
-    var sel = window.getSelection();
-    if(sel && textArea.firstChild){
-      /* move caret to very start */
-      var r = document.createRange();
-      r.setStart(textArea, 0);
-      r.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(r);
-    }
-    /* insert ZWS then immediately delete it — nudges the spell engine */
     document.execCommand('insertText', false, '\u200B');
     document.execCommand('delete');
 
@@ -3326,7 +3309,6 @@ function applyFix(wrong, right, lang){
 /* ── Auto Correct button ──────────────────────────────── */
 function runAutoCorrect(){
   if(!correctorLang){ showToast('Select a language first!'); return; }
-  if(typeof CORRECTIONS === 'undefined'){ showToast('Dictionary not loaded. Refresh page.'); return; }
   var t = textArea.value;
   if(!t){ showToast('Nothing to correct!'); return; }
 
@@ -3352,7 +3334,6 @@ function runAutoCorrect(){
 /* ── Check Errors button \u2192 open modal ────────────────── */
 function showErrors(){
   if(!correctorLang){ showToast('Select a language first!'); return; }
-  if(typeof CORRECTIONS === 'undefined'){ showToast('Dictionary not loaded. Refresh page.'); return; }
   var t = textArea.value;
   if(!t){ showToast('Nothing to check!'); return; }
 
@@ -3467,15 +3448,10 @@ document.getElementById('errorsModal').addEventListener('click', function(e){
 /* ── Init ─────────────────────────────────────────────────── */
 textArea.addEventListener('input', updateStats);
 
-/* Nudge browser spell-check on every word boundary (space / punctuation) */
+/* Nudge browser spell-check on word boundaries for instant red underlines */
 textArea.addEventListener('keyup', function(e){
   if(!correctorLang) return;
-  /* Only nudge on word-ending keystrokes to avoid lag */
-  var triggers = [' ','Enter','.',',','!','?',';',':'];
-  if(triggers.indexOf(e.key) === -1) return;
-  /* micro-mutation: insert + delete ZWS to force immediate rescan */
-  var s = window.getSelection();
-  if(!s || s.rangeCount === 0) return;
+  if([' ','Enter','.',',','!','?',';',':'].indexOf(e.key) === -1) return;
   document.execCommand('insertText', false, '​');
   document.execCommand('delete');
 });
@@ -3500,6 +3476,8 @@ window.onload = function(){
     var s = localStorage.getItem('te_pro_data');
     if(s){ textArea.value = s; updateStats(); }
   } catch(e){}
+  /* Auto-activate English spellcheck on load */
+  onCorrectorLangChange();
 };
 </script>
 
