@@ -4170,13 +4170,6 @@ document.getElementById('wsMod').addEventListener('click', function(e) { if (e.t
     clearTimeout(hideTimer);
   });
 
-  // Hide only when clicking outside both panel and text editor
-  document.addEventListener('click', function(e){
-    if(!panel.contains(e.target) && e.target.closest && !e.target.closest('#text')) {
-      panel.style.display = 'none';
-      activeSpan = null;
-    }
-  });
   document.addEventListener('scroll', function(){ panel.style.display = 'none'; activeSpan = null; }, true);
 })();
 </script>
