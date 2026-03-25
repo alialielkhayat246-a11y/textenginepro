@@ -126,18 +126,27 @@ textarea{width:100%;min-height:250px;padding:20px;font-size:18px;border:4px soli
 /* Contenteditable editor */
 #text{width:100%;min-height:250px;padding:20px;font-size:18px;border:4px solid var(--primary);font-family:'JetBrains Mono','Cairo',monospace;line-height:1.6;outline:none;background:#fff;display:block;box-sizing:border-box;white-space:pre-wrap;word-wrap:break-word;overflow-y:auto;max-height:none;cursor:text;resize:vertical;}
 #text:empty:before{content:attr(data-placeholder);color:#aaa;pointer-events:none;}
-.buttons-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px;align-items:stretch;}
-@media(max-width:600px){.buttons-grid{grid-template-columns:repeat(2,1fr);}}
+.buttons-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:15px;align-items:stretch;}
+@media(max-width:700px){.buttons-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:450px){.buttons-grid{grid-template-columns:repeat(2,1fr);}}
+/* Utility trio (Copy/Clear/Grammar) — same style as regular buttons */
+.btn-utility{padding:14px;border:3px solid var(--primary);background:#fff;font-weight:900;font-size:13px;cursor:pointer;transition:.1s;box-shadow:4px 4px 0 var(--primary);}
+.btn-utility:active{transform:translate(2px,2px);box-shadow:none;background:var(--accent);color:#fff;}
+/* Detect Language — orange, spans 3 cols */
+.lang-btn-detect{grid-column:1/span 3;background:var(--orange);color:#000;border:3px solid var(--primary);font-weight:900;font-size:14px;cursor:pointer;padding:14px;box-shadow:4px 4px 0 var(--primary);transition:.1s;letter-spacing:.5px;}
+.lang-btn-detect:active{transform:translate(2px,2px);box-shadow:none;filter:brightness(.9);}
+/* Smart Fix — spans 2 cols */
+.btn-smartfix{grid-column:4/span 2;background:var(--primary);color:#fff;border:3px solid var(--primary);font-weight:900;font-size:13px;cursor:pointer;padding:14px;box-shadow:4px 4px 0 #555;transition:.1s;}
+.btn-smartfix:active{transform:translate(2px,2px);box-shadow:none;background:#333;}
+/* Lang badge — full width row */
+.lang-badge{grid-column:1/-1;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;padding:10px 14px;background:var(--primary);color:#fff;display:flex;align-items:center;word-break:break-word;line-height:1.4;}
+/* Base button reset (for corrector strip, footer, etc.) */
 button{padding:14px;border:3px solid var(--primary);background:#fff;font-weight:900;font-size:13px;cursor:pointer;transition:.1s;box-shadow:4px 4px 0 var(--primary);}
 button:active{transform:translate(2px,2px);box-shadow:none;background:var(--accent);color:#fff;}
-.font-dropdown-wrap{position:relative;display:inline-block;flex:1;min-width:140px;}
-.font-dropdown-wrap select{width:100%;padding:14px 10px;border:3px solid var(--primary);background:#fff;font-weight:900;font-size:13px;cursor:pointer;box-shadow:4px 4px 0 var(--primary);appearance:none;-webkit-appearance:none;outline:none;font-family:'Segoe UI',sans-serif;}
-.font-dropdown-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:14px;}background:#f0f0f0;border:3px solid var(--primary);padding:10px 14px;flex-wrap:wrap;}
-/* Detect Language button */
-.lang-btn{width:100%;padding:14px;border:3px solid var(--primary);background:#fff;font-weight:900;font-size:13px;cursor:pointer;box-shadow:4px 4px 0 var(--primary);transition:.1s;font-family:'Segoe UI',sans-serif;}
-.lang-btn:active{transform:translate(2px,2px);box-shadow:none;background:var(--accent);color:#fff;}
-/* Lang info badge — spans col 1-3 under Copy/Clear/Grammar */
-.lang-badge{grid-column:1/span 3;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;padding:10px 14px;background:var(--primary);color:#fff;display:flex;align-items:center;word-break:break-word;line-height:1.4;}
+/* Font dropdown inline in grid */
+.font-dropdown-wrap{position:relative;display:block;}
+.font-dropdown-wrap select{width:100%;min-height:50px;padding:14px 32px 14px 10px;border:3px solid var(--primary);background:#fff;font-weight:900;font-size:13px;cursor:pointer;box-shadow:4px 4px 0 var(--primary);appearance:none;-webkit-appearance:none;outline:none;font-family:'Segoe UI',sans-serif;box-sizing:border-box;}
+.font-dropdown-wrap::after{content:'▾';position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;font-size:14px;}
 .content-hub{margin-top:40px;border-top:4px solid var(--primary);padding-top:30px;}
 .article{margin-bottom:40px;line-height:1.8;}
 .article h2{font-size:1.5rem;background:var(--primary);color:#fff;display:inline-block;padding:5px 15px;margin-bottom:20px;}
@@ -319,57 +328,58 @@ button:active{transform:translate(2px,2px);box-shadow:none;background:var(--acce
   <div id="text" contenteditable="true" spellcheck="false" dir="auto" role="textbox" aria-multiline="true" data-placeholder="Start typing... Your engine is warmed up."></div>
 
   <div class="buttons-grid">
-    <!-- Row 1: text transforms -->
+    <!-- Row 1: text transforms (5 cols) -->
     <button onclick="capitalize()" style="border-color:var(--accent)">Capitalize</button>
     <button onclick="upper()">UPPERCASE</button>
     <button onclick="lower()">lowercase</button>
     <button onclick="titleCase()">Title Case</button>
-    <!-- Row 2: tools + Copy/Clear/Grammar -->
     <button onclick="removeSpaces()">Clean Space</button>
-    <button onclick="copyText()">Copy &#x2705;</button>
-    <button onclick="clearText()" style="color:red">Clear</button>
-    <button id="btn-exclude-grammar" onclick="toggleExcludeGrammar()" title="Exclude grammar suggestions, show spelling errors only">&#x1F6AB; Grammar</button>
-    <!-- Row 3 col 1-3: lang info badge fills the space under Copy/Clear/Grammar -->
-    <span class="lang-badge" id="lang-badge">&#x2014; TYPE TO DETECT &#x2014;</span>
-    <!-- Row 2 col 4 continuing down: Font + Translate + Smart Fix + Detect stacked -->
-    <div style="display:flex;flex-direction:column;gap:8px;grid-row:2/5;grid-column:4;">
-      <div class="font-dropdown-wrap" style="flex:none;">
-        <select id="font-picker" onchange="applyFont(this.value)" title="Font Style">
-          <option value="">&#x1F524; Font Style</option>
-          <optgroup label="Sans-Serif">
-            <option value="Arial, sans-serif">Arial</option>
-            <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
-            <option value="'Segoe UI', sans-serif">Segoe UI</option>
-            <option value="Tahoma, sans-serif">Tahoma</option>
-            <option value="Verdana, sans-serif">Verdana</option>
-            <option value="Calibri, sans-serif">Calibri</option>
-          </optgroup>
-          <optgroup label="Serif">
-            <option value="Georgia, serif">Georgia</option>
-            <option value="'Times New Roman', serif">Times New Roman</option>
-            <option value="Garamond, serif">Garamond</option>
-            <option value="Palatino, serif">Palatino</option>
-          </optgroup>
-          <optgroup label="Monospace">
-            <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
-            <option value="'Courier New', monospace">Courier New</option>
-            <option value="'Lucida Console', monospace">Lucida Console</option>
-          </optgroup>
-          <optgroup label="Display">
-            <option value="Impact, fantasy">Impact</option>
-            <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
-            <option value="'Comic Sans MS', cursive">Comic Sans</option>
-          </optgroup>
-          <optgroup label="Arabic">
-            <option value="Cairo, sans-serif">Cairo</option>
-            <option value="'Noto Sans Arabic', sans-serif">Noto Arabic</option>
-          </optgroup>
-        </select>
-      </div>
-      <button id="btn-translate" style="background:#1565C0;color:#fff;border-color:#1565C0;box-shadow:4px 4px 0 #0D3B7A;" onclick="openTranslateStrip()">&#x1F310; Translate</button>
-      <button style="background:var(--primary);color:#fff;" onclick="smartAutoFix()">Smart Fix &#x1F9E0;</button>
-      <button class="lang-btn" id="lang-btn" onclick="detectLanguage()">&#x1F310; Detect Language</button>
+
+    <!-- Row 2: Copy / Clear / Grammar (red trio, cols 1-3) | Font (col 4) | Translate (col 5) -->
+    <button onclick="copyText()" class="btn-utility">Copy &#x2705;</button>
+    <button onclick="clearText()" class="btn-utility" style="color:var(--accent)">Clear</button>
+    <button id="btn-exclude-grammar" onclick="toggleExcludeGrammar()" class="btn-utility" title="Exclude grammar suggestions, show spelling errors only">&#x1F6AB; Grammar</button>
+    <div class="font-dropdown-wrap">
+      <select id="font-picker" onchange="applyFont(this.value)" title="Font Style">
+        <option value="">&#x1F524; Font Style</option>
+        <optgroup label="Sans-Serif">
+          <option value="Arial, sans-serif">Arial</option>
+          <option value="'Helvetica Neue', Helvetica, sans-serif">Helvetica</option>
+          <option value="'Segoe UI', sans-serif">Segoe UI</option>
+          <option value="Tahoma, sans-serif">Tahoma</option>
+          <option value="Verdana, sans-serif">Verdana</option>
+          <option value="Calibri, sans-serif">Calibri</option>
+        </optgroup>
+        <optgroup label="Serif">
+          <option value="Georgia, serif">Georgia</option>
+          <option value="'Times New Roman', serif">Times New Roman</option>
+          <option value="Garamond, serif">Garamond</option>
+          <option value="Palatino, serif">Palatino</option>
+        </optgroup>
+        <optgroup label="Monospace">
+          <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+          <option value="'Courier New', monospace">Courier New</option>
+          <option value="'Lucida Console', monospace">Lucida Console</option>
+        </optgroup>
+        <optgroup label="Display">
+          <option value="Impact, fantasy">Impact</option>
+          <option value="'Trebuchet MS', sans-serif">Trebuchet MS</option>
+          <option value="'Comic Sans MS', cursive">Comic Sans</option>
+        </optgroup>
+        <optgroup label="Arabic">
+          <option value="Cairo, sans-serif">Cairo</option>
+          <option value="'Noto Sans Arabic', sans-serif">Noto Arabic</option>
+        </optgroup>
+      </select>
     </div>
+    <button id="btn-translate" style="background:#1565C0;color:#fff;border-color:#1565C0;box-shadow:4px 4px 0 #0D3B7A;" onclick="openTranslateStrip()">&#x1F310; Translate</button>
+
+    <!-- Row 3: Detect Language (orange, cols 1-3) | Smart Fix (cols 4-5) -->
+    <button class="lang-btn lang-btn-detect" id="lang-btn" onclick="detectLanguage()">&#x1F310; Detect Language</button>
+    <button class="btn-smartfix" onclick="smartAutoFix()">Smart Fix &#x1F9E0;</button>
+
+    <!-- Row 4: Lang info badge — full width -->
+    <span class="lang-badge" id="lang-badge">&#x2014; TYPE TO DETECT &#x2014;</span>
   </div>
 
   <!-- TRANSLATION STRIP -->
@@ -3187,54 +3197,116 @@ function translateText(){
   status.className = 'corrector-status no-fixes';
   status.textContent = '\u23F3 Contacting translation engine\u2026';
 
-  var langPair = (src === 'auto' ? 'auto' : src) + '|' + tgt;
-  var url = 'https://api.mymemory.translated.net/get?q='
-    + encodeURIComponent(text.slice(0, 5000))  // MyMemory limit
+  /* ── Resolve source language: if auto, detect locally first ── */
+  var resolvedSrc = src;
+  if(src === 'auto'){
+    var detected = detectLang(text);
+    /* Map ISO 639-3 → ISO 639-1 for MyMemory */
+    var isoMap3to1 = {
+      eng:'en', ara:'ar', fra:'fr', deu:'de', spa:'es', por:'pt',
+      ita:'it', tur:'tr', rus:'ru', zho:'zh', jpn:'ja', kor:'ko',
+      nld:'nl', pol:'pl', swe:'sv', ukr:'uk', hin:'hi',
+      arz:'ar', apc:'ar', acm:'ar', fas:'fa', urd:'ur'
+    };
+    resolvedSrc = (detected && isoMap3to1[detected]) ? isoMap3to1[detected] : 'en';
+  }
+
+  /* Don't translate to same language */
+  if(resolvedSrc === tgt){
+    btn.disabled = false;
+    btn.textContent = '\uD83C\uDF10 Translate';
+    status.textContent = '\u26A0\uFE0F Source and target language are the same.';
+    showToast('Source = Target language!');
+    return;
+  }
+
+  function onTranslated(translated){
+    textArea.value = translated;
+    updateStats();
+    setCorrectorLangFromTranslation(tgt);
+    var t2 = translated.trim();
+    var ltMapFull = {en:'en-US',ar:'ar',fr:'fr',de:'de-DE',es:'es',pt:'pt-PT',it:'it',tr:'tr',ru:'ru'};
+    var ltLangNow = ltMapFull[correctorLang] || 'en-US';
+    fetch('https://api.languagetool.org/v2/check', {
+      method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body:'text=' + encodeURIComponent(t2) + '&language=' + ltLangNow
+    })
+    .then(function(r2){ if(!r2.ok) throw new Error(r2.status); return r2.json(); })
+    .then(function(d){ wsBuild(t2, d.matches || [], true); afterScan(); })
+    .catch(function(){ wsBuild(t2, [], false); afterScan(); });
+    var corrLangName = CORRECTOR_LANG_NAMES[correctorLang] || tgt.toUpperCase();
+    status.className = 'corrector-status has-fixes';
+    status.textContent = '\u2714 Translated (' + resolvedSrc.toUpperCase() + ' \u2192 ' + tgt.toUpperCase() + ')! Corrector auto-set to ' + corrLangName + '.';
+    showToast('\uD83C\uDF10 Translated \u2705');
+    btn.disabled = false;
+    btn.textContent = '\uD83C\uDF10 Translate';
+  }
+
+  function onError(msg){
+    status.className = 'corrector-status no-fixes';
+    status.textContent = '\u274C ' + msg;
+    showToast('\u274C Translation failed');
+    btn.disabled = false;
+    btn.textContent = '\uD83C\uDF10 Translate';
+  }
+
+  /* ── Primary: MyMemory API ── */
+  var langPair = resolvedSrc + '|' + tgt;
+  var mmUrl = 'https://api.mymemory.translated.net/get?q='
+    + encodeURIComponent(text.slice(0, 500))
     + '&langpair=' + langPair;
 
-  fetch(url)
-    .then(function(r){
-      if(!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    })
+  fetch(mmUrl)
+    .then(function(r){ if(!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function(data){
-      if(data.responseStatus === 200 || data.responseStatus === '200'){
-        var translated = data.responseData.translatedText;
-        textArea.value = translated;
-        updateStats();
-
-        // ── Auto-set corrector language to target ──
-        setCorrectorLangFromTranslation(tgt);
-
-        // ── Auto-scan the translated text using correctorLang (just updated above) ──
-        var t2 = translated.trim();
-        var ltMapFull = {en:'en-US',ar:'ar',fr:'fr',de:'de-DE',es:'es',pt:'pt-PT',it:'it',tr:'tr',ru:'ru'};
-        var ltLangNow = ltMapFull[correctorLang] || 'en-US';
-        fetch('https://api.languagetool.org/v2/check', {
-          method:'POST',
-          headers:{'Content-Type':'application/x-www-form-urlencoded'},
-          body:'text=' + encodeURIComponent(t2) + '&language=' + ltLangNow
-        })
-        .then(function(r2){ if(!r2.ok) throw new Error(r2.status); return r2.json(); })
-        .then(function(d){ wsBuild(t2, d.matches || [], true); afterScan(); })
-        .catch(function(){ wsBuild(t2, [], false); afterScan(); });
-
-        var corrLangName = CORRECTOR_LANG_NAMES[correctorLang] || tgt.toUpperCase();
-        status.className = 'corrector-status has-fixes';
-        status.textContent = '\u2714 Translated! Corrector auto-set to ' + corrLangName + ' \u2014 scanning…';
-        showToast('\uD83C\uDF10 Translated \u2705');
+      var st = parseInt(data.responseStatus, 10);
+      if(st === 200 && data.responseData && data.responseData.translatedText){
+        var out = data.responseData.translatedText;
+        /* MyMemory sometimes echoes the input unchanged when it can't translate */
+        if(out.trim().toLowerCase() === text.trim().toLowerCase()) throw new Error('No translation available for this language pair.');
+        onTranslated(out);
+      } else if(st === 403){
+        throw new Error('Daily quota exceeded on primary engine. Trying backup\u2026');
       } else {
-        throw new Error(data.responseMessage || 'Translation failed');
+        throw new Error(data.responseMessage || 'Translation failed (status ' + st + ')');
       }
     })
     .catch(function(err){
-      status.className = 'corrector-status no-fixes';
-      status.textContent = '\u274C Translation failed: ' + err.message + '. Check your connection.';
-      showToast('\u274C Translation failed');
-    })
-    .finally(function(){
-      btn.disabled = false;
-      btn.textContent = '\uD83C\uDF10 Translate';
+      /* ── Fallback: MyMemory with English as pivot ── */
+      status.textContent = '\u23F3 Primary failed, trying backup engine\u2026';
+      var mmFallback = 'https://api.mymemory.translated.net/get?q='
+        + encodeURIComponent(text.slice(0, 500))
+        + '&langpair=' + resolvedSrc + '|en';
+
+      /* Only do pivot if target isn't already English */
+      var pivotNeeded = (tgt !== 'en');
+      var firstFetch = pivotNeeded
+        ? fetch(mmFallback).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+        : Promise.resolve(null);
+
+      firstFetch
+        .then(function(d1){
+          if(!pivotNeeded) throw new Error('Direct pair unavailable');
+          var st1 = parseInt((d1||{}).responseStatus, 10);
+          if(st1 !== 200 || !d1.responseData || !d1.responseData.translatedText) throw new Error('Pivot step 1 failed');
+          var pivot = d1.responseData.translatedText;
+          /* Second leg: English → target */
+          var mmPivot2 = 'https://api.mymemory.translated.net/get?q='
+            + encodeURIComponent(pivot.slice(0, 500))
+            + '&langpair=en|' + tgt;
+          return fetch(mmPivot2).then(function(r2){ if(!r2.ok) throw new Error('HTTP '+r2.status); return r2.json(); });
+        })
+        .then(function(d2){
+          var st2 = parseInt((d2||{}).responseStatus, 10);
+          if(st2 === 200 && d2.responseData && d2.responseData.translatedText){
+            onTranslated(d2.responseData.translatedText);
+          } else {
+            throw new Error('Backup engine also failed. Please try again later.');
+          }
+        })
+        .catch(function(err2){
+          onError('Translation unavailable: ' + err2.message + ' — check your internet connection or try a different language pair.');
+        });
     });
 }
 
